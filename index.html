@@ -66,13 +66,11 @@
   .progress-label { font-size: 0.75rem; color: var(--ink-soft); white-space:nowrap; }
 
   .voice-note {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
+    font-weight: 400;
     color: var(--ink-soft);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-top: 10px;
+    opacity: 0.8;
+    margin: 3px 0 0;
     display: none;
   }
 
@@ -165,16 +163,19 @@
     accent-color: var(--accent);
   }
 
-  .settings-row-toggle {
+  .settings-header-group {
+    margin: 12px 0 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 12px 0 12px;
-    padding: 0;
+    gap: 10px;
+  }
+  .settings-header-text {
     font-size: 0.78rem;
     color: var(--ink-soft);
     font-weight: 600;
     letter-spacing: 0.3px;
+  }
   }
 
   .icon {
@@ -206,6 +207,7 @@
     font-weight: 600;
     cursor:pointer;
     display:flex; align-items:center; gap:6px;
+    white-space: nowrap;
   }
   .playall-status {
     font-size: 0.78rem;
@@ -436,7 +438,6 @@
   <header>
     <h1>French Practice</h1>
     <p>Tap a phrase to reveal the English. Tap play to hear it read aloud.</p>
-    <div class="voice-note" id="voiceNote">No French voice detected on this device — audio may fall back to a default voice. It still works, just may not sound native.</div>
 
     <div class="add-panel">
       <h2>Add your own phrase</h2>
@@ -464,8 +465,11 @@
     </div>
   </div>
 
-  <div class="settings-row-toggle">
-    <span>Playback Settings</span>
+  <div class="settings-header-group">
+    <div class="settings-header-text">
+      <span>Playback Settings</span>
+      <div class="voice-note" id="voiceNote">No French voice detected on this device — audio may fall back to a default voice.</div>
+    </div>
     <button class="gear-btn" id="settingsToggle" aria-label="Playback settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 
@@ -513,6 +517,44 @@
 </div>
 
 <script>
+// Persistence layer: window.storage only exists inside Claude's artifact
+// preview. Once this file is deployed as a standalone site (e.g. GitHub
+// Pages) that API isn't present, so we fall back to localStorage, which is
+// the correct, permanent, per-site storage for a real deployed page.
+const hasClaudeStorage = !!(window.storage && typeof window.storage.get === 'function');
+
+async function storageGet(key) {
+  if (hasClaudeStorage) {
+    try {
+      const res = await window.storage.get(key, false);
+      return res ? res.value : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  try {
+    return localStorage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+async function storageSet(key, value) {
+  if (hasClaudeStorage) {
+    try {
+      await window.storage.set(key, value, false);
+      return;
+    } catch (e) {
+      return;
+    }
+  }
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    // storage unavailable (private browsing, quota, etc.) — fail silently
+  }
+}
+
 const ICONS = {
   play: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
   stop: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>',
@@ -663,16 +705,14 @@ let customPhrases = []; // {id, fr, en}
 let nextCustomId = 1000;
 
 function saveLearned() {
-  try {
-    window.storage.set('learned-ids', JSON.stringify(Array.from(learnedSet)), false);
-  } catch (e) { /* storage optional, fail silently */ }
+  storageSet('learned-ids', JSON.stringify(Array.from(learnedSet)));
 }
 
 async function loadLearned() {
   try {
-    const res = await window.storage.get('learned-ids', false);
-    if (res && res.value) {
-      learnedSet = new Set(JSON.parse(res.value));
+    const raw = await storageGet('learned-ids');
+    if (raw) {
+      learnedSet = new Set(JSON.parse(raw));
     }
   } catch (e) {
     learnedSet = new Set();
@@ -681,16 +721,14 @@ async function loadLearned() {
 }
 
 function saveCustom() {
-  try {
-    window.storage.set('custom-phrases', JSON.stringify(customPhrases), false);
-  } catch (e) { /* fail silently */ }
+  storageSet('custom-phrases', JSON.stringify(customPhrases));
 }
 
 async function loadCustom() {
   try {
-    const res = await window.storage.get('custom-phrases', false);
-    if (res && res.value) {
-      customPhrases = JSON.parse(res.value);
+    const raw = await storageGet('custom-phrases');
+    if (raw) {
+      customPhrases = JSON.parse(raw);
       if (customPhrases.length) {
         nextCustomId = Math.max(...customPhrases.map(p => p.id)) + 1;
       }
@@ -759,16 +797,14 @@ let settings = {
 };
 
 function saveSettings() {
-  try {
-    window.storage.set('playback-settings', JSON.stringify(settings), false);
-  } catch (e) { /* fail silently */ }
+  storageSet('playback-settings', JSON.stringify(settings));
 }
 
 async function loadSettings() {
   try {
-    const res = await window.storage.get('playback-settings', false);
-    if (res && res.value) {
-      settings = Object.assign(settings, JSON.parse(res.value));
+    const raw = await storageGet('playback-settings');
+    if (raw) {
+      settings = Object.assign(settings, JSON.parse(raw));
     }
   } catch (e) { /* keep defaults */ }
 }
