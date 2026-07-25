@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>100 Phrases — French Daily Practice</title>
+<title>French Practice</title>
 <style>
   :root{
-    --bg: #EFF1F6;
+    --bg: #F7F7F8;
     --card: #FFFFFF;
     --ink: #1B2540;
     --ink-soft: #5B6478;
     --accent: #5B4B8A;
+    --sticky-bg: #F2EFFA;
     --accent-soft: #EDE8F7;
     --line: #DFE2EA;
     --done: #7A9E7E;
@@ -24,11 +25,13 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 80px; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 20px 80px; }
 
   header {
-    padding: 18px 4px 6px;
-    background: var(--bg);
+    padding: 18px 20px 6px;
+    margin: 0 -20px;
+    width: calc(100% + 40px);
+    background: var(--sticky-bg);
   }
   header h1 {
     font-family: Georgia, "Times New Roman", serif;
@@ -44,9 +47,11 @@
   .sticky-controls {
     position: sticky;
     top: 0;
-    background: var(--bg);
+    background: var(--sticky-bg);
     z-index: 5;
-    padding: 10px 4px 14px;
+    padding: 14px 20px 16px;
+    margin: 0 -20px;
+    width: calc(100% + 40px);
   }
   .progress-row {
     display:flex; align-items:center; gap:10px;
@@ -63,7 +68,8 @@
   .voice-note {
     font-size: 0.72rem;
     color: var(--ink-soft);
-    background: var(--accent-soft);
+    background: var(--card);
+    border: 1px solid var(--line);
     border-radius: 8px;
     padding: 8px 10px;
     margin-top: 10px;
@@ -79,6 +85,9 @@
     color: var(--accent);
     font-size: 1rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .settings-panel {
@@ -161,11 +170,19 @@
     align-items: center;
     justify-content: space-between;
     margin: 12px 0 12px;
-    padding: 0 2px;
+    padding: 0;
     font-size: 0.78rem;
     color: var(--ink-soft);
     font-weight: 600;
     letter-spacing: 0.3px;
+  }
+
+  .icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
   }
 
   .playall-bar {
@@ -176,7 +193,7 @@
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 10px 12px;
+    padding: 16px;
   }
   .playall-btn {
     flex-shrink:0;
@@ -201,7 +218,7 @@
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 14px;
+    padding: 16px;
   }
   .add-panel h2 {
     font-size: 0.72rem;
@@ -220,7 +237,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 10px 12px;
-    font-size: 0.95rem;
+    font-size: 16px;
     font-family: inherit;
     color: var(--ink);
     background: var(--bg);
@@ -246,6 +263,10 @@
     margin-top: 8px;
     min-height: 1em;
   }
+  .add-status:empty {
+    margin-top: 0;
+    min-height: 0;
+  }
   .add-status.error { color: #B23A48; }
 
   .swipe-wrap {
@@ -260,20 +281,56 @@
     z-index: 1;
     touch-action: pan-y;
   }
-  .swipe-delete-action {
+  .swipe-actions {
     position: absolute;
     top: 0; right: 0; bottom: 0;
-    width: 84px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .swipe-icon-btn {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 50%;
     border: none;
-    background: #B23A48;
-    color: white;
-    font-size: 0.82rem;
-    font-weight: 600;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
   }
+  .swipe-icon-btn.edit { background: var(--accent); color: white; }
+  .swipe-icon-btn.delete { background: #B23A48; color: white; }
+  .edit-form {
+    padding: 16px;
+  }
+  .edit-form input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--bg);
+    margin-bottom: 14px;
+  }
+  .edit-form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .edit-form-actions button {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .edit-save-btn { background: var(--accent); color: white; }
+  .edit-cancel-btn { background: var(--line); color: var(--ink); }
 
   .category {
     margin-top: 26px;
@@ -283,7 +340,7 @@
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--ink-soft);
-    margin: 0 0 10px 4px;
+    margin: 0 0 10px;
     font-weight: 600;
   }
 
@@ -310,6 +367,11 @@
     color: var(--ink-soft);
     width: 22px;
     flex-shrink: 0;
+  }
+  .phrase-num .icon {
+    width: 15px;
+    height: 15px;
+    color: var(--accent);
   }
   .phrase-text {
     flex:1;
@@ -372,8 +434,8 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>100 Phrases — Daily French</h1>
-    <p>Tap a phrase to reveal the English. Tap ▶ to hear it in French, then English.</p>
+    <h1>French Practice</h1>
+    <p>Tap a phrase to reveal the English. Tap play to hear it read aloud.</p>
     <div class="voice-note" id="voiceNote">No French voice detected on this device — audio may fall back to a default voice. It still works, just may not sound native.</div>
 
     <div class="add-panel">
@@ -381,11 +443,10 @@
       <div class="add-row">
         <input type="text" id="customInputEn" placeholder="English sentence" />
       </div>
-      <div class="add-row" style="margin-top:8px;">
+      <div class="add-row" style="margin-top:14px;">
         <input type="text" id="customInputFr" placeholder="French translation" />
       </div>
-      <div style="font-size:0.72rem; color:var(--ink-soft); margin: 4px 2px 0;">Leave French blank to auto-translate.</div>
-      <div class="add-row" style="margin-top:26px;">
+      <div class="add-row" style="margin-top:16px;">
         <button id="translateBtn" style="width:100%;">Add phrase</button>
       </div>
       <div class="add-status" id="addStatus"></div>
@@ -394,8 +455,8 @@
 
   <div class="sticky-controls">
     <div class="playall-bar">
-      <button class="playall-btn" id="playAllBtn">▶ Play all</button>
-      <div class="playall-status" id="playAllStatus">Plays every phrase in order, pausing between each.</div>
+      <button class="playall-btn" id="playAllBtn"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>Play all</span></button>
+      <div class="playall-status" id="playAllStatus">Plays every phrase in order, French then English, pausing between each.</div>
     </div>
     <div class="progress-row">
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -405,7 +466,7 @@
 
   <div class="settings-row-toggle">
     <span>Playback Settings</span>
-    <button class="gear-btn" id="settingsToggle" aria-label="Playback settings">⚙</button>
+    <button class="gear-btn" id="settingsToggle" aria-label="Playback settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 
   <div class="settings-panel" id="settingsPanel">
@@ -452,6 +513,17 @@
 </div>
 
 <script>
+const ICONS = {
+  play: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  stop: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>',
+  pause: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+  check: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  gear: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  star: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>',
+  pen: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+};
+
 const DATA = [
   {cat:"Daily routine", items:[
     ["Je me suis réveillé tôt aujourd'hui.","I woke up early today."],
@@ -708,6 +780,21 @@ function applySettingsToUI() {
   setSwitch('playEnglishToggle', settings.playEnglish);
   setSwitch('shuffleToggle', settings.shuffle);
   setSwitch('unlearnedToggle', settings.onlyUnlearned);
+  refreshIdleStatus();
+}
+
+function idleStatusText() {
+  const order = settings.shuffle ? 'in shuffled order' : 'in order';
+  const audio = settings.playEnglish ? 'French then English' : 'French only';
+  return `Plays every phrase ${order}, ${audio}, pausing between each.`;
+}
+
+// Only overwrite the status line when Play All is fully idle (never started,
+// or finished and reset) — never while it's actively playing or paused mid-list.
+function refreshIdleStatus() {
+  if (playAllActive) return;
+  if (playAllIndex !== 0) return;
+  document.getElementById('playAllStatus').textContent = idleStatusText();
 }
 
 function setSwitch(id, on) {
@@ -741,7 +828,7 @@ function playPhrase(item, btn) {
   window.speechSynthesis.cancel();
   resetPlayingState();
   btn.classList.add('playing');
-  btn.textContent = '■';
+  btn.innerHTML = ICONS.stop;
   currentUtterancePair = btn;
 
   speak(item.fr, 'fr', settings.frenchRate, () => {
@@ -764,7 +851,7 @@ function playPhrase(item, btn) {
 function resetPlayingState() {
   document.querySelectorAll('.play-btn.playing').forEach(b => {
     b.classList.remove('playing');
-    b.textContent = '▶';
+    b.innerHTML = ICONS.play;
   });
   currentUtterancePair = null;
 }
@@ -838,6 +925,24 @@ function removeCustomPhrase(id) {
   renderAll();
 }
 
+let editingIds = new Set();
+
+function updateCustomPhrase(id, newEn, newFr) {
+  const item = customPhrases.find(p => p.id === id);
+  if (item) {
+    item.en = newEn;
+    item.fr = newFr;
+    saveCustom();
+  }
+  editingIds.delete(id);
+  renderAll();
+}
+
+function cancelEditCustomPhrase(id) {
+  editingIds.delete(id);
+  renderAll();
+}
+
 let flatOrder = []; // ordered list of {id, fr, en} matching DOM top-to-bottom, rebuilt on render
 
 function buildPhraseCard(item, isCustom) {
@@ -851,7 +956,11 @@ function buildPhraseCard(item, isCustom) {
 
   const num = document.createElement('div');
   num.className = 'phrase-num';
-  num.textContent = isCustom ? '★' : (ALL.findIndex(a => a.id === item.id) + 1) + '.';
+  if (isCustom) {
+    num.innerHTML = ICONS.star;
+  } else {
+    num.textContent = (ALL.findIndex(a => a.id === item.id) + 1) + '.';
+  }
 
   const textWrap = document.createElement('div');
   textWrap.className = 'phrase-text';
@@ -867,7 +976,7 @@ function buildPhraseCard(item, isCustom) {
 
   const playBtn = document.createElement('button');
   playBtn.className = 'play-btn';
-  playBtn.textContent = '▶';
+  playBtn.innerHTML = ICONS.play;
   playBtn.setAttribute('aria-label', 'Play phrase');
   playBtn.addEventListener('click', () => {
     if (playBtn.classList.contains('playing')) {
@@ -884,7 +993,7 @@ function buildPhraseCard(item, isCustom) {
 
   const learnBtn = document.createElement('button');
   learnBtn.className = 'learn-btn';
-  learnBtn.textContent = '✓';
+  learnBtn.innerHTML = ICONS.check;
   learnBtn.setAttribute('aria-label', 'Mark as learned');
   learnBtn.addEventListener('click', () => toggleLearned(item.id, learnBtn, card));
 
@@ -896,29 +1005,96 @@ function buildPhraseCard(item, isCustom) {
 
   if (!isCustom) return card;
 
-  // Custom phrases get a swipe-left-to-delete wrapper instead of a visible trash icon.
+  // Edit mode: swap the whole tile for an inline edit form.
+  if (editingIds.has(item.id)) {
+    return buildEditForm(item);
+  }
+
+  // Custom phrases get a swipe-left reveal with Edit and Delete actions
+  // instead of always-visible icons.
   const wrap = document.createElement('div');
   wrap.className = 'swipe-wrap';
 
+  const actions = document.createElement('div');
+  actions.className = 'swipe-actions';
+
+  const editAction = document.createElement('button');
+  editAction.className = 'swipe-icon-btn edit';
+  editAction.innerHTML = ICONS.pen;
+  editAction.setAttribute('aria-label', 'Edit phrase');
+  editAction.addEventListener('click', (e) => {
+    e.stopPropagation();
+    editingIds.add(item.id);
+    renderAll();
+  });
+
   const deleteAction = document.createElement('button');
-  deleteAction.className = 'swipe-delete-action';
-  deleteAction.textContent = 'Delete';
+  deleteAction.className = 'swipe-icon-btn delete';
+  deleteAction.innerHTML = ICONS.trash;
   deleteAction.setAttribute('aria-label', 'Delete phrase');
   deleteAction.addEventListener('click', (e) => {
     e.stopPropagation();
     removeCustomPhrase(item.id);
   });
 
-  wrap.appendChild(deleteAction);
+  actions.appendChild(editAction);
+  actions.appendChild(deleteAction);
+  wrap.appendChild(actions);
   wrap.appendChild(card);
   attachSwipeToDelete(card);
 
   return wrap;
 }
 
+function buildEditForm(item) {
+  const card = document.createElement('div');
+  card.className = 'phrase';
+  card.id = 'card-' + item.id;
+
+  const form = document.createElement('div');
+  form.className = 'edit-form';
+
+  const enInput = document.createElement('input');
+  enInput.type = 'text';
+  enInput.value = item.en;
+  enInput.placeholder = 'English sentence';
+
+  const frInput = document.createElement('input');
+  frInput.type = 'text';
+  frInput.value = item.fr;
+  frInput.placeholder = 'French translation';
+
+  const actions = document.createElement('div');
+  actions.className = 'edit-form-actions';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'edit-save-btn';
+  saveBtn.textContent = 'Save';
+  saveBtn.addEventListener('click', () => {
+    const newEn = enInput.value.trim();
+    const newFr = frInput.value.trim();
+    if (!newEn || !newFr) return;
+    updateCustomPhrase(item.id, newEn, newFr);
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'edit-cancel-btn';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', () => cancelEditCustomPhrase(item.id));
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  form.appendChild(enInput);
+  form.appendChild(frInput);
+  form.appendChild(actions);
+  card.appendChild(form);
+
+  return card;
+}
+
 function attachSwipeToDelete(card) {
-  const OPEN_X = -84;
-  const THRESHOLD = -40;
+  const OPEN_X = -132;
+  const THRESHOLD = -50;
   let startX = 0;
   let currentX = 0;
   let dragging = false;
@@ -1013,7 +1189,9 @@ let playOrder = [];
 
 function setPlayAllButton(active) {
   const btn = document.getElementById('playAllBtn');
-  btn.textContent = active ? '⏸ Pause' : '▶ Play all';
+  btn.innerHTML = active
+    ? ICONS.pause + '<span>Pause</span>'
+    : ICONS.play + '<span>Play all</span>';
 }
 
 function stopPlayAll() {
@@ -1063,7 +1241,7 @@ function playAllStep() {
   const btn = card ? card.querySelector('.play-btn') : null;
   if (btn) {
     btn.classList.add('playing');
-    btn.textContent = '■';
+    btn.innerHTML = ICONS.stop;
   }
 
   speak(item.fr, 'fr', settings.frenchRate, () => {
@@ -1126,6 +1304,7 @@ document.getElementById('playEnglishToggle').addEventListener('click', (e) => {
   settings.playEnglish = !settings.playEnglish;
   setSwitch('playEnglishToggle', settings.playEnglish);
   saveSettings();
+  refreshIdleStatus();
 });
 
 document.getElementById('shuffleToggle').addEventListener('click', (e) => {
@@ -1133,6 +1312,7 @@ document.getElementById('shuffleToggle').addEventListener('click', (e) => {
   setSwitch('shuffleToggle', settings.shuffle);
   playAllIndex = 0; // re-shuffle takes effect on next start
   saveSettings();
+  refreshIdleStatus();
 });
 
 document.getElementById('unlearnedToggle').addEventListener('click', (e) => {
@@ -1140,6 +1320,7 @@ document.getElementById('unlearnedToggle').addEventListener('click', (e) => {
   setSwitch('unlearnedToggle', settings.onlyUnlearned);
   playAllIndex = 0; // filter change takes effect on next start
   saveSettings();
+  refreshIdleStatus();
 });
 
 document.getElementById('translateBtn').addEventListener('click', handleAddCustomPhrase);
