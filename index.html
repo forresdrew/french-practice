@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
+<meta name="google" content="notranslate">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>French Practice</title>
@@ -250,6 +251,33 @@
     color: var(--ink);
     background: var(--bg);
   }
+  .fr-input-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+  }
+  .fr-input-wrap input {
+    padding-right: 38px;
+  }
+  .input-spinner {
+    display: none;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border: 2px solid var(--line);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+  }
+  .input-spinner.active {
+    display: block;
+    animation: input-spin 0.7s linear infinite;
+  }
+  @keyframes input-spin {
+    to { transform: rotate(360deg); }
+  }
   .add-row button {
     flex-shrink:0;
     border:none;
@@ -451,7 +479,10 @@
         <input type="text" id="customInputEn" placeholder="English sentence" />
       </div>
       <div class="add-row" style="margin-top:14px;">
-        <input type="text" id="customInputFr" placeholder="French translation" />
+        <div class="fr-input-wrap">
+          <input type="text" id="customInputFr" placeholder="French translation" />
+          <span class="input-spinner" id="frSpinner"></span>
+        </div>
       </div>
       <div class="add-row" style="margin-top:16px;">
         <button id="translateBtn" style="width:100%;">Add phrase</button>
@@ -473,7 +504,7 @@
       <div class="setting-row">
         <label for="gapSeconds">Pause Between Playbacks</label>
         <div class="setting-control">
-          <input type="range" id="gapSeconds" min="0" max="10" step="0.5" value="0.5" />
+          <input type="range" id="gapSeconds" min="0" max="10" step="0.5" value="1" />
           <span class="setting-value" id="gapSecondsValue">0.5s</span>
         </div>
       </div>
@@ -481,6 +512,12 @@
         <label for="playEnglishToggle">Play English audio</label>
         <div class="setting-control">
           <button class="toggle-switch on" id="playEnglishToggle" role="switch" aria-checked="true"></button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label for="showEnglishToggle">Show English during playback</label>
+        <div class="setting-control">
+          <button class="toggle-switch" id="showEnglishToggle" role="switch" aria-checked="false"></button>
         </div>
       </div>
       <div class="setting-row">
@@ -502,7 +539,7 @@
       <div class="setting-row">
         <label for="unlearnedToggle">Exclude Learned</label>
         <div class="setting-control">
-          <button class="toggle-switch" id="unlearnedToggle" role="switch" aria-checked="false"></button>
+          <button class="toggle-switch on" id="unlearnedToggle" role="switch" aria-checked="true"></button>
         </div>
       </div>
     </div>
@@ -797,11 +834,12 @@ function pickVoice(langPrefix) {
 }
 
 let settings = {
-  gapSeconds: 0.5,
+  gapSeconds: 1,
   playEnglish: true,
   frenchRate: 0.95,
   shuffle: false,
-  onlyUnlearned: false
+  onlyUnlearned: true,
+  showEnglishDuringPlayback: false
 };
 
 function saveSettings() {
@@ -822,6 +860,7 @@ function applySettingsToUI() {
   document.getElementById('gapSecondsValue').textContent = settings.gapSeconds + 's';
   document.getElementById('speedToggle').value = settings.frenchRate;
   setSwitch('playEnglishToggle', settings.playEnglish);
+  setSwitch('showEnglishToggle', settings.showEnglishDuringPlayback);
   setSwitch('shuffleToggle', settings.shuffle);
   setSwitch('unlearnedToggle', settings.onlyUnlearned);
   refreshIdleStatus();
@@ -867,8 +906,19 @@ function speak(text, langPrefix, rate, onend) {
   try {
     const utter = new SpeechSynthesisUtterance(text);
     const v = pickVoice(langPrefix);
-    if (v) utter.voice = v;
-    utter.lang = langPrefix === 'fr' ? 'fr-FR' : 'en-US';
+    if (v) {
+      // Use the matched voice's own lang code, not a hardcoded one —
+      // some voices report slightly different variants (e.g. 'fr-CA').
+      utter.voice = v;
+      utter.lang = v.lang;
+    } else {
+      // No voice on this device matches this language at all. Forcing an
+      // unsupported lang code (e.g. 'fr-FR') here makes some Android TTS
+      // engines silently refuse to speak anything rather than falling
+      // back to a default voice — so leave lang unset and let the
+      // browser use whatever voice it has, rather than producing no
+      // sound at all.
+    }
     utter.rate = rate;
     utter.onend = onend;
     window.speechSynthesis.speak(utter);
@@ -890,6 +940,7 @@ function playPhrase(item, btn) {
   btn.classList.add('playing');
   btn.innerHTML = ICONS.stop;
   currentUtterancePair = btn;
+  startAutoReveal(item);
 
   speak(item.fr, 'fr', settings.frenchRate, () => {
     if (!settings.playEnglish) {
@@ -908,30 +959,43 @@ function playPhrase(item, btn) {
   });
 }
 
+let autoRevealedEl = null;
+let autoRevealedWasShown = false;
+
+function startAutoReveal(item) {
+  if (!settings.showEnglishDuringPlayback) return;
+  const card = document.getElementById('card-' + item.id);
+  const enEl = card ? card.querySelector('.en') : null;
+  if (!enEl) return;
+  autoRevealedWasShown = enEl.classList.contains('shown');
+  enEl.classList.add('shown');
+  autoRevealedEl = enEl;
+}
+
+function endAutoReveal() {
+  if (autoRevealedEl && !autoRevealedWasShown) {
+    autoRevealedEl.classList.remove('shown');
+  }
+  autoRevealedEl = null;
+}
+
 function resetPlayingState() {
   document.querySelectorAll('.play-btn.playing').forEach(b => {
     b.classList.remove('playing');
     b.innerHTML = ICONS.play;
   });
   currentUtterancePair = null;
+  endAutoReveal();
 }
 
 async function translateToFrench(english) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      system: "Translate the given English sentence into natural, everyday spoken French, using the formal 'vous' register, suitable for speaking with strangers or in professional contexts. Use the masculine form for any adjective or past participle that would agree with the speaker's gender (do not add gender markers like '(e)', since they interfere with text-to-speech playback). Respond with ONLY the French translation, nothing else — no quotes, no explanation, no English.",
-      messages: [{ role: "user", content: english }]
-    })
-  });
+  const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(english) + "&langpair=en|fr";
+  const response = await fetch(url);
   if (!response.ok) throw new Error("Translation request failed");
   const data = await response.json();
-  const textBlock = data.content.find(b => b.type === "text");
-  if (!textBlock) throw new Error("No translation returned");
-  return textBlock.text.trim();
+  const translated = data && data.responseData && data.responseData.translatedText;
+  if (!translated) throw new Error("No translation returned");
+  return translated.trim();
 }
 
 async function handleAddCustomPhrase() {
@@ -952,12 +1016,13 @@ async function handleAddCustomPhrase() {
     saveCustom();
     enInput.value = '';
     frInput.value = '';
+    frenchManuallyEdited = false;
     status.textContent = 'Added to My Phrases (saved locally, no translation needed).';
     renderAll();
     return;
   }
 
-  // Auto-translate path: requires the live artifact / API access.
+  // Auto-translate path via MyMemory (works from any deployed page, no key needed).
   btn.disabled = true;
   status.textContent = 'Translating…';
   try {
@@ -967,6 +1032,7 @@ async function handleAddCustomPhrase() {
     saveCustom();
     enInput.value = '';
     frInput.value = '';
+    frenchManuallyEdited = false;
     status.textContent = 'Added to My Phrases.';
     renderAll();
   } catch (e) {
@@ -1025,7 +1091,7 @@ function buildPhraseCard(item, isCustom) {
   const textWrap = document.createElement('div');
   textWrap.className = 'phrase-text';
   const frEl = document.createElement('div');
-  frEl.className = 'fr';
+  frEl.className = 'fr notranslate';
   frEl.textContent = item.fr;
   const enEl = document.createElement('div');
   enEl.className = 'en';
@@ -1303,6 +1369,7 @@ function playAllStep() {
     btn.classList.add('playing');
     btn.innerHTML = ICONS.stop;
   }
+  startAutoReveal(item);
 
   speak(item.fr, 'fr', settings.frenchRate, () => {
     if (!playAllActive) return;
@@ -1367,6 +1434,12 @@ document.getElementById('playEnglishToggle').addEventListener('click', (e) => {
   refreshIdleStatus();
 });
 
+document.getElementById('showEnglishToggle').addEventListener('click', (e) => {
+  settings.showEnglishDuringPlayback = !settings.showEnglishDuringPlayback;
+  setSwitch('showEnglishToggle', settings.showEnglishDuringPlayback);
+  saveSettings();
+});
+
 document.getElementById('shuffleToggle').addEventListener('click', (e) => {
   settings.shuffle = !settings.shuffle;
   setSwitch('shuffleToggle', settings.shuffle);
@@ -1389,6 +1462,58 @@ document.getElementById('customInputEn').addEventListener('keydown', (e) => {
 });
 document.getElementById('customInputFr').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') handleAddCustomPhrase();
+});
+
+// Debounced live-translate: as the person types English, quietly fill in
+// the French field ~300ms after they pause, without waiting for the Add
+// button. If they've typed their own French, don't clobber it.
+let liveTranslateTimer = null;
+let liveTranslateRequestId = 0;
+let isAutoFillingFrench = false;
+let frenchManuallyEdited = false;
+
+const liveEnInput = document.getElementById('customInputEn');
+const liveFrInput = document.getElementById('customInputFr');
+
+liveFrInput.addEventListener('input', () => {
+  if (isAutoFillingFrench) return; // this was us setting it, not the person
+  frenchManuallyEdited = liveFrInput.value.trim().length > 0;
+});
+
+liveEnInput.addEventListener('input', () => {
+  clearTimeout(liveTranslateTimer);
+  const text = liveEnInput.value.trim();
+  const spinner = document.getElementById('frSpinner');
+  const status = document.getElementById('addStatus');
+  if (!text || frenchManuallyEdited) {
+    spinner.classList.remove('active');
+    return;
+  }
+
+  liveTranslateTimer = setTimeout(async () => {
+    const myRequestId = ++liveTranslateRequestId;
+    spinner.classList.add('active');
+    try {
+      const translated = await translateToFrench(text);
+      // Ignore this result if the person kept typing since, or typed
+      // their own French while we were waiting on the network.
+      if (myRequestId !== liveTranslateRequestId) return;
+      if (frenchManuallyEdited) return;
+      isAutoFillingFrench = true;
+      liveFrInput.value = translated;
+      isAutoFillingFrench = false;
+      status.classList.remove('error');
+      status.textContent = '';
+    } catch (e) {
+      if (myRequestId !== liveTranslateRequestId) return;
+      status.classList.add('error');
+      status.textContent = "Couldn't translate that — try again, or type the French yourself above.";
+    } finally {
+      if (myRequestId === liveTranslateRequestId) {
+        spinner.classList.remove('active');
+      }
+    }
+  }, 300);
 });
 
 (async function init() {
