@@ -847,6 +847,22 @@ function setSwitch(id, on) {
   el.setAttribute('aria-checked', on ? 'true' : 'false');
 }
 
+// Some Android WebViews / in-app browsers don't implement the Web Speech
+// API at all. Calling window.speechSynthesis.cancel() directly on those
+// throws immediately and silently kills whatever click handler called it —
+// which looked like "the button doesn't respond at all." This guards every
+// call site so a missing speech engine never breaks the UI itself.
+const hasSpeechSynthesis = !!(window.speechSynthesis && typeof window.speechSynthesis.speak === 'function');
+
+function safeCancelSpeech() {
+  if (!hasSpeechSynthesis) return;
+  try {
+    window.speechSynthesis.cancel();
+  } catch (e) {
+    // ignore
+  }
+}
+
 function speak(text, langPrefix, rate, onend) {
   try {
     const utter = new SpeechSynthesisUtterance(text);
@@ -864,12 +880,12 @@ function speak(text, langPrefix, rate, onend) {
 function playPhrase(item, btn) {
   // If this button is already playing, stop everything.
   if (btn.classList.contains('playing')) {
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     resetPlayingState();
     return;
   }
   // Cancel anything else in progress first.
-  window.speechSynthesis.cancel();
+  safeCancelSpeech();
   resetPlayingState();
   btn.classList.add('playing');
   btn.innerHTML = ICONS.stop;
@@ -1027,7 +1043,7 @@ function buildPhraseCard(item, isCustom) {
       // This row is the one currently sounding — whether from Play All or a
       // single tap — so this click means "stop", not "restart".
       stopPlayAll();
-      window.speechSynthesis.cancel();
+      safeCancelSpeech();
       resetPlayingState();
       return;
     }
@@ -1241,7 +1257,7 @@ function setPlayAllButton(active) {
 function stopPlayAll() {
   if (!playAllActive) return;
   playAllActive = false;
-  window.speechSynthesis.cancel();
+  safeCancelSpeech();
   resetPlayingState();
   setPlayAllButton(false);
 }
@@ -1321,7 +1337,7 @@ document.getElementById('playAllBtn').addEventListener('click', () => {
         return;
       }
     }
-    window.speechSynthesis.cancel();
+    safeCancelSpeech();
     resetPlayingState();
     playAllActive = true;
     setPlayAllButton(true);
