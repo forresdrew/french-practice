@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100 Phrases — French Daily Practice</title>
+<style>
+  :root{
+    --bg: #EFF1F6;
+    --card: #FFFFFF;
+    --ink: #1B2540;
+    --ink-soft: #5B6478;
+    --accent: #5B4B8A;
+    --accent-soft: #EDE8F7;
+    --line: #DFE2EA;
+    --done: #7A9E7E;
+    --done-bg: #EAF2EA;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  header {
+    padding: 18px 4px 6px;
+    background: var(--bg);
+  }
+  header h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+  }
+  .sticky-controls {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 5;
+    padding: 10px 4px 14px;
+  }
+  .progress-row {
+    display:flex; align-items:center; gap:10px;
+    margin-top: 14px;
+  }
+  .progress-bar {
+    flex:1; height: 6px; background: var(--line); border-radius: 4px; overflow:hidden;
+  }
+  .progress-fill {
+    height:100%; background: var(--accent); width:0%; transition: width 0.3s ease;
+  }
+  .progress-label { font-size: 0.75rem; color: var(--ink-soft); white-space:nowrap; }
+
+  .voice-note {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .gear-btn {
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .settings-panel {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 0 0 16px;
+  }
+  .settings-panel.open { display: block; }
+  .settings-subheader {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    padding: 12px 0 2px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.88rem;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .setting-value {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    min-width: 34px;
+    text-align: right;
+  }
+  .setting-control select {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .toggle-switch {
+    width: 44px; height: 26px;
+    border-radius: 14px;
+    border: none;
+    background: var(--line);
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.15s ease;
+  }
+  .toggle-switch.on {
+    background: var(--accent);
+  }
+  .toggle-switch.on::after {
+    transform: translateX(18px);
+  }
+  input[type="range"] {
+    width: 100px;
+    accent-color: var(--accent);
+  }
+
+  .settings-row-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 12px 0 12px;
+    padding: 0 2px;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .playall-bar {
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-top: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .playall-btn {
+    flex-shrink:0;
+    border:none;
+    background: var(--accent);
+    color:white;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .playall-status {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    flex:1;
+  }
+
+  .add-panel {
+    margin-top: 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .add-panel h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+  .add-row {
+    display:flex;
+    gap: 8px;
+  }
+  .add-row input {
+    flex:1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  .add-row button {
+    flex-shrink:0;
+    border:none;
+    background: var(--accent);
+    color:white;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 1.02rem;
+    font-weight: 600;
+    cursor:pointer;
+  }
+  .add-row button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .add-status {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    min-height: 1em;
+  }
+  .add-status.error { color: #B23A48; }
+
+  .swipe-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .swipe-wrap .phrase {
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+    touch-action: pan-y;
+  }
+  .swipe-delete-action {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 84px;
+    border: none;
+    background: #B23A48;
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor: pointer;
+  }
+
+  .category {
+    margin-top: 26px;
+  }
+  .category h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    margin: 0 0 10px 4px;
+    font-weight: 600;
+  }
+
+  .phrase {
+    background: var(--card);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .phrase.learned {
+    border-color: var(--done);
+    background: var(--done-bg);
+  }
+  .phrase-main {
+    display:flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 12px;
+  }
+  .phrase-num {
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    width: 22px;
+    flex-shrink: 0;
+  }
+  .phrase-text {
+    flex:1;
+    cursor: pointer;
+  }
+  .fr {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  .en {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    display: none;
+  }
+  .en.shown { display: block; }
+
+  .play-btn {
+    flex-shrink:0;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 1rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor: pointer;
+  }
+  .play-btn.playing {
+    background: var(--accent);
+    color: white;
+  }
+  .learn-btn {
+    flex-shrink:0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    display:flex; align-items:center; justify-content:center;
+    cursor: pointer;
+  }
+  .phrase.learned .learn-btn {
+    border-color: var(--done);
+    color: var(--done);
+    background: white;
+  }
+
+  footer {
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    margin-top: 30px;
+    padding: 0 20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>100 Phrases — Daily French</h1>
+    <p>Tap a phrase to reveal the English. Tap ▶ to hear it in French, then English.</p>
+    <div class="voice-note" id="voiceNote">No French voice detected on this device — audio may fall back to a default voice. It still works, just may not sound native.</div>
+
+    <div class="add-panel">
+      <h2>Add your own phrase</h2>
+      <div class="add-row">
+        <input type="text" id="customInputEn" placeholder="English sentence" />
+      </div>
+      <div class="add-row" style="margin-top:8px;">
+        <input type="text" id="customInputFr" placeholder="French translation" />
+      </div>
+      <div style="font-size:0.72rem; color:var(--ink-soft); margin: 4px 2px 0;">Leave French blank to auto-translate.</div>
+      <div class="add-row" style="margin-top:26px;">
+        <button id="translateBtn" style="width:100%;">Add phrase</button>
+      </div>
+      <div class="add-status" id="addStatus"></div>
+    </div>
+  </header>
+
+  <div class="sticky-controls">
+    <div class="playall-bar">
+      <button class="playall-btn" id="playAllBtn">▶ Play all</button>
+      <div class="playall-status" id="playAllStatus">Plays every phrase in order, pausing between each.</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 100 learned</div>
+    </div>
+  </div>
+
+  <div class="settings-row-toggle">
+    <span>Playback Settings</span>
+    <button class="gear-btn" id="settingsToggle" aria-label="Playback settings">⚙</button>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="setting-row">
+      <label for="gapSeconds">Pause Between Playbacks</label>
+      <div class="setting-control">
+        <input type="range" id="gapSeconds" min="0" max="10" step="0.5" value="0.5" />
+        <span class="setting-value" id="gapSecondsValue">0.5s</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <label for="playEnglishToggle">Play English audio</label>
+      <div class="setting-control">
+        <button class="toggle-switch on" id="playEnglishToggle" role="switch" aria-checked="true"></button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <label for="speedToggle">French speed</label>
+      <div class="setting-control">
+        <select id="speedToggle">
+          <option value="0.95">Normal</option>
+          <option value="0.7">Slow</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-subheader">Play all settings</div>
+    <div class="setting-row">
+      <label for="shuffleToggle">Shuffle</label>
+      <div class="setting-control">
+        <button class="toggle-switch" id="shuffleToggle" role="switch" aria-checked="false"></button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <label for="unlearnedToggle">Exclude Learned</label>
+      <div class="setting-control">
+        <button class="toggle-switch" id="unlearnedToggle" role="switch" aria-checked="false"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+
+  <footer>Playback uses your device's built-in voices, so nothing is downloaded or recorded — it speaks live each time you tap play.</footer>
+</div>
+
+<script>
+const DATA = [
+  {cat:"Daily routine", items:[
+    ["Je me suis réveillé tôt aujourd'hui.","I woke up early today."],
+    ["Je fais du café.","I'm making coffee."],
+    ["Je dois partir dans cinq minutes.","I need to leave in five minutes."],
+    ["Je suis en retard.","I'm running late."],
+    ["J'ai bien dormi cette nuit.","I slept well last night."],
+    ["Je suis fatigué.","I'm tired."],
+    ["Je dois prendre une douche.","I need to take a shower."],
+    ["Je vais regarder mon téléphone.","Let me check my phone."],
+    ["J'ai oublié mes clés.","I forgot my keys."],
+    ["Je reviens tout de suite.","I'll be right back."],
+  ]},
+  {cat:"Greetings & small talk", items:[
+    ["Comment ça va ?","How are you doing?"],
+    ["Ça va bien, merci.","I'm doing well, thanks."],
+    ["Qu'est-ce que tu fais ?","What are you up to?"],
+    ["Pas grand-chose, je me détends.","Nothing much, just relaxing."],
+    ["Ça fait longtemps qu'on ne s'est pas vus.","Long time no see."],
+    ["Content de te voir.","Nice to see you."],
+    ["Prends soin de toi.","Take care."],
+    ["À plus tard.","See you later."],
+    ["Bonne journée.","Have a good day."],
+    ["À bientôt.","Talk to you soon."],
+  ]},
+  {cat:"Requests & clarification", items:[
+    ["Tu peux m'aider avec ça ?","Can you help me with this?"],
+    ["Tu as besoin de quelque chose ?","Do you need anything?"],
+    ["Dis-moi si tu as besoin d'aide.","Let me know if you need help."],
+    ["Tu peux me passer ça ?","Can you pass me that?"],
+    ["Tu peux répéter ?","Could you repeat that?"],
+    ["Je n'ai pas compris.","I didn't catch that."],
+    ["Tu peux parler un peu plus lentement ?","Can you speak a little slower?"],
+    ["Qu'est-ce que tu as dit ?","What did you say?"],
+    ["Désolé, je n'ai pas compris.","Sorry, I didn't understand."],
+    ["Tu peux expliquer encore une fois ?","Can you explain that again?"],
+  ]},
+  {cat:"Food & eating", items:[
+    ["J'ai faim.","I'm hungry."],
+    ["J'ai soif.","I'm thirsty."],
+    ["Qu'est-ce que tu veux manger ?","What do you want to eat?"],
+    ["On commande à manger ?","Let's order food."],
+    ["C'est très bon.","This tastes great."],
+    ["Je n'ai plus faim.","I'm full."],
+    ["L'addition, s'il vous plaît.","Can I get the check, please?"],
+    ["Tu veux boire quelque chose ?","Do you want something to drink?"],
+    ["Je dois faire les courses.","I need to go grocery shopping."],
+    ["Qu'est-ce qu'on mange ce soir ?","What's for dinner?"],
+  ]},
+  {cat:"Work & errands", items:[
+    ["J'ai une réunion à trois heures.","I have a meeting at three."],
+    ["Je dois finir ça avant demain.","I need to finish this by tomorrow."],
+    ["On peut reporter ?","Can we reschedule?"],
+    ["Je vais t'envoyer un email.","I'll send you an email."],
+    ["On en parle plus tard.","Let's talk about it later."],
+    ["Je travaille à la maison aujourd'hui.","I'm working from home today."],
+    ["J'ai des courses à faire.","I need to run some errands."],
+    ["Je dois passer un coup de fil.","I have to make a phone call."],
+    ["Je vais vérifier mon calendrier.","Let me check my calendar."],
+    ["Je te recontacte.","I'll get back to you."],
+  ]},
+  {cat:"Feelings & opinions", items:[
+    ["Je pense que c'est une bonne idée.","I think that's a good idea."],
+    ["Je ne suis pas sûr.","I'm not sure about that."],
+    ["Je suis d'accord avec toi.","I agree with you."],
+    ["Je ne suis pas d'accord.","I disagree."],
+    ["Ça a du sens.","That makes sense."],
+    ["Je suis content de ça.","I'm happy about that."],
+    ["Je suis un peu stressé.","I'm a little stressed."],
+    ["Ne t'inquiète pas.","Don't worry about it."],
+    ["Ce n'est pas grave.","It's not a big deal."],
+    ["Je suis impatient à propos de ça.","I'm excited about this."],
+  ]},
+  {cat:"Time & plans", items:[
+    ["Quelle heure est-il ?","What time is it?"],
+    ["Quels sont tes plans pour aujourd'hui ?","What are your plans for today?"],
+    ["Tu as des projets ce week-end ?","Do you have any plans this weekend?"],
+    ["On se voit un de ces jours ?","Let's meet up sometime."],
+    ["Je suis libre demain.","I'm free tomorrow."],
+    ["Je suis occupé maintenant.","I'm busy right now."],
+    ["On peut faire ça un autre jour ?","Can we do this another day?"],
+    ["J'arrive dans dix minutes.","I'll be there in ten minutes."],
+    ["J'ai besoin de plus de temps.","I need more time."],
+    ["Commençons maintenant.","Let's start now."],
+  ]},
+  {cat:"Home & family", items:[
+    ["Où es-tu ?","Where are you?"],
+    ["Je rentre à la maison.","I'm on my way home."],
+    ["Tu peux aller chercher les enfants ?","Can you pick up the kids?"],
+    ["Tu as fermé la porte à clé ?","Did you lock the door?"],
+    ["Éteins les lumières.","Turn off the lights."],
+    ["Je rangerai plus tard.","I'll clean up later."],
+    ["Tu peux m'aider à porter ça ?","Can you help me carry this?"],
+    ["Il se fait tard.","It's getting late."],
+    ["Allons nous coucher.","Let's go to bed."],
+    ["Bonjour.","Good morning."],
+  ]},
+  {cat:"Weather & small talk", items:[
+    ["Il fait vraiment chaud aujourd'hui.","It's really hot today."],
+    ["Il fait froid dehors.","It's cold outside."],
+    ["On dirait qu'il va pleuvoir.","Looks like it's going to rain."],
+    ["Quelle belle journée.","What a nice day."],
+    ["J'adore ce temps.","I love this weather."],
+  ]},
+  {cat:"Understanding & questions", items:[
+    ["Qu'est-ce que tu veux dire ?","What do you mean?"],
+    ["Pourquoi tu penses ça ?","Why do you think so?"],
+    ["Comment ça marche ?","How does this work?"],
+    ["Qu'est-ce qui se passe ?","What's going on?"],
+    ["Tout va bien ?","Is everything okay?"],
+  ]},
+  {cat:"Gratitude & apologies", items:[
+    ["Merci beaucoup.","Thank you so much."],
+    ["Merci pour ton aide.","Thanks for your help."],
+    ["J'apprécie vraiment.","I really appreciate it."],
+    ["Je suis désolé pour ça.","I'm sorry about that."],
+    ["Toutes mes excuses.","My apologies."],
+    ["Pas de problème du tout.","No problem at all."],
+    ["De rien.","You're welcome."],
+    ["Désolé de te déranger.","Sorry to bother you."],
+    ["C'est très gentil de ta part.","That's very kind of you."],
+    ["Je t'en dois une.","I owe you one."],
+  ]},
+];
+
+// Flatten with stable global ids
+let ALL = [];
+DATA.forEach(section => {
+  section.items.forEach(([fr, en]) => {
+    ALL.push({ id: ALL.length, fr, en, cat: section.cat });
+  });
+});
+
+let learnedSet = new Set();
+let currentUtterancePair = null; // {btn} while speaking
+let customPhrases = []; // {id, fr, en}
+let nextCustomId = 1000;
+
+function saveLearned() {
+  try {
+    window.storage.set('learned-ids', JSON.stringify(Array.from(learnedSet)), false);
+  } catch (e) { /* storage optional, fail silently */ }
+}
+
+async function loadLearned() {
+  try {
+    const res = await window.storage.get('learned-ids', false);
+    if (res && res.value) {
+      learnedSet = new Set(JSON.parse(res.value));
+    }
+  } catch (e) {
+    learnedSet = new Set();
+  }
+  updateProgress();
+}
+
+function saveCustom() {
+  try {
+    window.storage.set('custom-phrases', JSON.stringify(customPhrases), false);
+  } catch (e) { /* fail silently */ }
+}
+
+async function loadCustom() {
+  try {
+    const res = await window.storage.get('custom-phrases', false);
+    if (res && res.value) {
+      customPhrases = JSON.parse(res.value);
+      if (customPhrases.length) {
+        nextCustomId = Math.max(...customPhrases.map(p => p.id)) + 1;
+      }
+    }
+  } catch (e) {
+    customPhrases = [];
+  }
+}
+
+function updateProgress() {
+  const total = ALL.length + customPhrases.length;
+  const done = learnedSet.size;
+  document.getElementById('progressFill').style.width = (total ? (done/total*100) : 0) + '%';
+  document.getElementById('progressLabel').textContent = `${done} / ${total} learned`;
+}
+
+function toggleLearned(id, btn, card) {
+  if (learnedSet.has(id)) {
+    learnedSet.delete(id);
+    card.classList.remove('learned');
+  } else {
+    learnedSet.add(id);
+    card.classList.add('learned');
+  }
+  updateProgress();
+  saveLearned();
+}
+
+function toggleReveal(enEl) {
+  enEl.classList.toggle('shown');
+}
+
+let voices = [];
+function loadVoices() {
+  try {
+    voices = window.speechSynthesis.getVoices() || [];
+    const hasFrench = voices.some(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
+    if (!hasFrench) {
+      const note = document.getElementById('voiceNote');
+      if (note) note.style.display = 'block';
+    }
+  } catch (e) {
+    const note = document.getElementById('voiceNote');
+    if (note) note.style.display = 'block';
+  }
+}
+try {
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+} catch (e) {
+  // Speech synthesis unavailable or blocked in this environment — audio buttons will no-op safely.
+}
+
+function pickVoice(langPrefix) {
+  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix)) || null;
+}
+
+let settings = {
+  gapSeconds: 0.5,
+  playEnglish: true,
+  frenchRate: 0.95,
+  shuffle: false,
+  onlyUnlearned: false
+};
+
+function saveSettings() {
+  try {
+    window.storage.set('playback-settings', JSON.stringify(settings), false);
+  } catch (e) { /* fail silently */ }
+}
+
+async function loadSettings() {
+  try {
+    const res = await window.storage.get('playback-settings', false);
+    if (res && res.value) {
+      settings = Object.assign(settings, JSON.parse(res.value));
+    }
+  } catch (e) { /* keep defaults */ }
+}
+
+function applySettingsToUI() {
+  document.getElementById('gapSeconds').value = settings.gapSeconds;
+  document.getElementById('gapSecondsValue').textContent = settings.gapSeconds + 's';
+  document.getElementById('speedToggle').value = settings.frenchRate;
+  setSwitch('playEnglishToggle', settings.playEnglish);
+  setSwitch('shuffleToggle', settings.shuffle);
+  setSwitch('unlearnedToggle', settings.onlyUnlearned);
+}
+
+function setSwitch(id, on) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on', on);
+  el.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
+function speak(text, langPrefix, rate, onend) {
+  try {
+    const utter = new SpeechSynthesisUtterance(text);
+    const v = pickVoice(langPrefix);
+    if (v) utter.voice = v;
+    utter.lang = langPrefix === 'fr' ? 'fr-FR' : 'en-US';
+    utter.rate = rate;
+    utter.onend = onend;
+    window.speechSynthesis.speak(utter);
+  } catch (e) {
+    if (typeof onend === 'function') onend();
+  }
+}
+
+function playPhrase(item, btn) {
+  // If this button is already playing, stop everything.
+  if (btn.classList.contains('playing')) {
+    window.speechSynthesis.cancel();
+    resetPlayingState();
+    return;
+  }
+  // Cancel anything else in progress first.
+  window.speechSynthesis.cancel();
+  resetPlayingState();
+  btn.classList.add('playing');
+  btn.textContent = '■';
+  currentUtterancePair = btn;
+
+  speak(item.fr, 'fr', settings.frenchRate, () => {
+    if (!settings.playEnglish) {
+      setTimeout(() => {
+        if (currentUtterancePair !== btn) return;
+        resetPlayingState();
+      }, settings.gapSeconds * 1000);
+      return;
+    }
+    setTimeout(() => {
+      if (currentUtterancePair !== btn) return; // was cancelled
+      speak(item.en, 'en', 1.0, () => {
+        resetPlayingState();
+      });
+    }, settings.gapSeconds * 1000);
+  });
+}
+
+function resetPlayingState() {
+  document.querySelectorAll('.play-btn.playing').forEach(b => {
+    b.classList.remove('playing');
+    b.textContent = '▶';
+  });
+  currentUtterancePair = null;
+}
+
+async function translateToFrench(english) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: "Translate the given English sentence into natural, everyday spoken French, using the informal 'tu' register, matching a casual daily-conversation phrasebook style. Use the masculine form for any adjective or past participle that would agree with the speaker's gender (do not add gender markers like '(e)', since they interfere with text-to-speech playback). Respond with ONLY the French translation, nothing else — no quotes, no explanation, no English.",
+      messages: [{ role: "user", content: english }]
+    })
+  });
+  if (!response.ok) throw new Error("Translation request failed");
+  const data = await response.json();
+  const textBlock = data.content.find(b => b.type === "text");
+  if (!textBlock) throw new Error("No translation returned");
+  return textBlock.text.trim();
+}
+
+async function handleAddCustomPhrase() {
+  const enInput = document.getElementById('customInputEn');
+  const frInput = document.getElementById('customInputFr');
+  const btn = document.getElementById('translateBtn');
+  const status = document.getElementById('addStatus');
+  const english = enInput.value.trim();
+  const frenchTyped = frInput.value.trim();
+  if (!english) return;
+
+  status.classList.remove('error');
+
+  // Manual path: French already supplied — pure local save, no network call.
+  if (frenchTyped) {
+    const item = { id: nextCustomId++, fr: frenchTyped, en: english };
+    customPhrases.push(item);
+    saveCustom();
+    enInput.value = '';
+    frInput.value = '';
+    status.textContent = 'Added to My Phrases (saved locally, no translation needed).';
+    renderAll();
+    return;
+  }
+
+  // Auto-translate path: requires the live artifact / API access.
+  btn.disabled = true;
+  status.textContent = 'Translating…';
+  try {
+    const french = await translateToFrench(english);
+    const item = { id: nextCustomId++, fr: french, en: english };
+    customPhrases.push(item);
+    saveCustom();
+    enInput.value = '';
+    frInput.value = '';
+    status.textContent = 'Added to My Phrases.';
+    renderAll();
+  } catch (e) {
+    status.classList.add('error');
+    status.textContent = "Couldn't translate that — try again, or type the French yourself above.";
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function removeCustomPhrase(id) {
+  customPhrases = customPhrases.filter(p => p.id !== id);
+  learnedSet.delete(id);
+  saveCustom();
+  saveLearned();
+  renderAll();
+}
+
+let flatOrder = []; // ordered list of {id, fr, en} matching DOM top-to-bottom, rebuilt on render
+
+function buildPhraseCard(item, isCustom) {
+  const card = document.createElement('div');
+  card.className = 'phrase';
+  card.id = 'card-' + item.id;
+  if (learnedSet.has(item.id)) card.classList.add('learned');
+
+  const main = document.createElement('div');
+  main.className = 'phrase-main';
+
+  const num = document.createElement('div');
+  num.className = 'phrase-num';
+  num.textContent = isCustom ? '★' : (ALL.findIndex(a => a.id === item.id) + 1) + '.';
+
+  const textWrap = document.createElement('div');
+  textWrap.className = 'phrase-text';
+  const frEl = document.createElement('div');
+  frEl.className = 'fr';
+  frEl.textContent = item.fr;
+  const enEl = document.createElement('div');
+  enEl.className = 'en';
+  enEl.textContent = item.en;
+  textWrap.appendChild(frEl);
+  textWrap.appendChild(enEl);
+  textWrap.addEventListener('click', () => toggleReveal(enEl));
+
+  const playBtn = document.createElement('button');
+  playBtn.className = 'play-btn';
+  playBtn.textContent = '▶';
+  playBtn.setAttribute('aria-label', 'Play phrase');
+  playBtn.addEventListener('click', () => {
+    if (playBtn.classList.contains('playing')) {
+      // This row is the one currently sounding — whether from Play All or a
+      // single tap — so this click means "stop", not "restart".
+      stopPlayAll();
+      window.speechSynthesis.cancel();
+      resetPlayingState();
+      return;
+    }
+    stopPlayAll();
+    playPhrase(item, playBtn);
+  });
+
+  const learnBtn = document.createElement('button');
+  learnBtn.className = 'learn-btn';
+  learnBtn.textContent = '✓';
+  learnBtn.setAttribute('aria-label', 'Mark as learned');
+  learnBtn.addEventListener('click', () => toggleLearned(item.id, learnBtn, card));
+
+  main.appendChild(num);
+  main.appendChild(textWrap);
+  main.appendChild(playBtn);
+  main.appendChild(learnBtn);
+  card.appendChild(main);
+
+  if (!isCustom) return card;
+
+  // Custom phrases get a swipe-left-to-delete wrapper instead of a visible trash icon.
+  const wrap = document.createElement('div');
+  wrap.className = 'swipe-wrap';
+
+  const deleteAction = document.createElement('button');
+  deleteAction.className = 'swipe-delete-action';
+  deleteAction.textContent = 'Delete';
+  deleteAction.setAttribute('aria-label', 'Delete phrase');
+  deleteAction.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeCustomPhrase(item.id);
+  });
+
+  wrap.appendChild(deleteAction);
+  wrap.appendChild(card);
+  attachSwipeToDelete(card);
+
+  return wrap;
+}
+
+function attachSwipeToDelete(card) {
+  const OPEN_X = -84;
+  const THRESHOLD = -40;
+  let startX = 0;
+  let currentX = 0;
+  let dragging = false;
+  let opened = false;
+
+  card.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    startX = e.clientX - currentX;
+    card.style.transition = 'none';
+  });
+
+  card.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    let dx = e.clientX - startX;
+    dx = Math.min(0, Math.max(OPEN_X, dx));
+    currentX = dx;
+    card.style.transform = `translateX(${currentX}px)`;
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = 'transform 0.2s ease';
+    if (currentX < THRESHOLD) {
+      currentX = OPEN_X;
+      opened = true;
+    } else {
+      currentX = 0;
+      opened = false;
+    }
+    card.style.transform = `translateX(${currentX}px)`;
+  }
+  card.addEventListener('pointerup', endDrag);
+  card.addEventListener('pointercancel', endDrag);
+
+  // While open, the first tap anywhere on the card closes it instead of
+  // triggering play/reveal/learned underneath.
+  card.addEventListener('click', (e) => {
+    if (opened) {
+      e.stopPropagation();
+      e.preventDefault();
+      opened = false;
+      currentX = 0;
+      card.style.transition = 'transform 0.2s ease';
+      card.style.transform = 'translateX(0px)';
+    }
+  }, true);
+}
+
+function renderAll() {
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  flatOrder = [];
+
+  // My Phrases section (custom, user-added)
+  if (customPhrases.length) {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'category';
+    const h2 = document.createElement('h2');
+    h2.textContent = 'My Phrases';
+    catDiv.appendChild(h2);
+    customPhrases.forEach(item => {
+      catDiv.appendChild(buildPhraseCard(item, true));
+      flatOrder.push(item);
+    });
+    container.appendChild(catDiv);
+  }
+
+  DATA.forEach(section => {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'category';
+    const h2 = document.createElement('h2');
+    h2.textContent = section.cat;
+    catDiv.appendChild(h2);
+
+    section.items.forEach(([fr, en]) => {
+      const item = ALL.find(a => a.fr === fr && a.en === en);
+      catDiv.appendChild(buildPhraseCard(item, false));
+      flatOrder.push(item);
+    });
+
+    container.appendChild(catDiv);
+  });
+
+  updateProgress();
+}
+
+// ---- Play All (sequential playback) ----
+let playAllActive = false;
+let playAllIndex = 0;
+let playOrder = [];
+
+function setPlayAllButton(active) {
+  const btn = document.getElementById('playAllBtn');
+  btn.textContent = active ? '⏸ Pause' : '▶ Play all';
+}
+
+function stopPlayAll() {
+  if (!playAllActive) return;
+  playAllActive = false;
+  window.speechSynthesis.cancel();
+  resetPlayingState();
+  setPlayAllButton(false);
+}
+
+function highlightCard(item) {
+  document.querySelectorAll('.phrase-main').forEach(el => el.style.background = '');
+  const card = document.getElementById('card-' + item.id);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function computePlayOrder() {
+  let order = settings.onlyUnlearned
+    ? flatOrder.filter(item => !learnedSet.has(item.id))
+    : flatOrder.slice();
+  if (settings.shuffle) {
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+  }
+  return order;
+}
+
+function playAllStep() {
+  if (!playAllActive) return;
+  resetPlayingState();
+  if (playAllIndex >= playOrder.length) {
+    playAllActive = false;
+    setPlayAllButton(false);
+    document.getElementById('playAllStatus').textContent = 'Reached the end — press Play all to restart.';
+    playAllIndex = 0;
+    return;
+  }
+  const item = playOrder[playAllIndex];
+  highlightCard(item);
+  document.getElementById('playAllStatus').textContent = `Phrase ${playAllIndex + 1} / ${playOrder.length}`;
+
+  const card = document.getElementById('card-' + item.id);
+  const btn = card ? card.querySelector('.play-btn') : null;
+  if (btn) {
+    btn.classList.add('playing');
+    btn.textContent = '■';
+  }
+
+  speak(item.fr, 'fr', settings.frenchRate, () => {
+    if (!playAllActive) return;
+    if (!settings.playEnglish) {
+      setTimeout(() => {
+        if (!playAllActive) return;
+        playAllIndex++;
+        setTimeout(playAllStep, 900);
+      }, settings.gapSeconds * 1000);
+      return;
+    }
+    setTimeout(() => {
+      if (!playAllActive) return;
+      speak(item.en, 'en', 1.0, () => {
+        if (!playAllActive) return;
+        playAllIndex++;
+        setTimeout(playAllStep, 900); // fixed interval before next phrase
+      });
+    }, settings.gapSeconds * 1000);
+  });
+}
+
+document.getElementById('playAllBtn').addEventListener('click', () => {
+  if (playAllActive) {
+    stopPlayAll();
+    document.getElementById('playAllStatus').textContent = `Paused at phrase ${playAllIndex} / ${playOrder.length}. Press Play all to resume.`;
+  } else {
+    if (playAllIndex === 0) {
+      playOrder = computePlayOrder();
+      if (playOrder.length === 0) {
+        document.getElementById('playAllStatus').textContent = 'No unlearned phrases left to play — toggle "only unlearned" off in settings.';
+        return;
+      }
+    }
+    window.speechSynthesis.cancel();
+    resetPlayingState();
+    playAllActive = true;
+    setPlayAllButton(true);
+    playAllStep();
+  }
+});
+
+document.getElementById('settingsToggle').addEventListener('click', () => {
+  document.getElementById('settingsPanel').classList.toggle('open');
+});
+
+document.getElementById('gapSeconds').addEventListener('input', (e) => {
+  settings.gapSeconds = parseFloat(e.target.value);
+  document.getElementById('gapSecondsValue').textContent = settings.gapSeconds + 's';
+  saveSettings();
+});
+
+document.getElementById('speedToggle').addEventListener('change', (e) => {
+  settings.frenchRate = parseFloat(e.target.value);
+  saveSettings();
+});
+
+document.getElementById('playEnglishToggle').addEventListener('click', (e) => {
+  settings.playEnglish = !settings.playEnglish;
+  setSwitch('playEnglishToggle', settings.playEnglish);
+  saveSettings();
+});
+
+document.getElementById('shuffleToggle').addEventListener('click', (e) => {
+  settings.shuffle = !settings.shuffle;
+  setSwitch('shuffleToggle', settings.shuffle);
+  playAllIndex = 0; // re-shuffle takes effect on next start
+  saveSettings();
+});
+
+document.getElementById('unlearnedToggle').addEventListener('click', (e) => {
+  settings.onlyUnlearned = !settings.onlyUnlearned;
+  setSwitch('unlearnedToggle', settings.onlyUnlearned);
+  playAllIndex = 0; // filter change takes effect on next start
+  saveSettings();
+});
+
+document.getElementById('translateBtn').addEventListener('click', handleAddCustomPhrase);
+document.getElementById('customInputEn').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleAddCustomPhrase();
+});
+document.getElementById('customInputFr').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleAddCustomPhrase();
+});
+
+(async function init() {
+  await loadLearned();
+  await loadCustom();
+  await loadSettings();
+  applySettingsToUI();
+  renderAll();
+})();
+</script>
+</body>
+</html>
