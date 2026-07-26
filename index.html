@@ -45,9 +45,81 @@
     color: var(--ink-soft);
     font-size: 0.88rem;
   }
-  .sticky-controls {
+  .lang-toolbar {
     position: sticky;
     top: 0;
+    z-index: 10;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    margin: 0 -20px;
+    width: calc(100% + 40px);
+    padding: 10px 20px;
+  }
+  .lang-current-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    padding: 4px 2px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .lang-flag {
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+  .lang-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--ink-soft);
+    transition: transform 0.15s ease;
+  }
+  .lang-toolbar.open .lang-chevron {
+    transform: rotate(180deg);
+  }
+  .lang-dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    left: 20px;
+    top: 100%;
+    margin-top: 4px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    overflow: hidden;
+    min-width: 170px;
+    z-index: 11;
+  }
+  .lang-toolbar.open .lang-dropdown {
+    display: flex;
+  }
+  .lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: var(--card);
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+  }
+  .lang-option:last-child { border-bottom: none; }
+  .lang-option.active {
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  .sticky-controls {
+    position: sticky;
+    top: 46px;
     background: var(--sticky-bg);
     z-index: 5;
     padding: 12px 20px 16px;
@@ -220,6 +292,21 @@
     font-size: 0.78rem;
     color: var(--ink-soft);
     flex:1;
+  }
+  .playall-reset-btn {
+    display: none;
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .playall-reset-btn.visible {
+    display: flex;
   }
 
   .add-panel {
@@ -469,8 +556,22 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="lang-toolbar" id="langToolbar">
+    <button class="lang-current-btn" id="langCurrentBtn">
+      <span class="lang-flag" id="langFlag">🇫🇷</span>
+      <span class="lang-name" id="langName">French</span>
+      <svg class="icon lang-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button class="lang-option" data-lang="fr"><span class="lang-flag">🇫🇷</span> French</button>
+      <button class="lang-option" data-lang="it"><span class="lang-flag">🇮🇹</span> Italian</button>
+      <button class="lang-option" data-lang="hr"><span class="lang-flag">🇭🇷</span> Croatian</button>
+      <button class="lang-option" data-lang="es"><span class="lang-flag">🇪🇸</span> Spanish</button>
+    </div>
+  </div>
+
   <header>
-    <h1>French Practice</h1>
+    <h1 id="pageTitle">French Practice</h1>
     <p>Tap a phrase to reveal the English. Tap play to hear it read aloud.</p>
 
     <div class="add-panel">
@@ -548,7 +649,8 @@
   <div class="sticky-controls">
     <div class="playall-bar">
       <button class="playall-btn" id="playAllBtn"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span>Play all</span></button>
-      <div class="playall-status" id="playAllStatus">Plays every phrase in order, French then English, pausing between each.</div>
+      <div class="playall-status" id="playAllStatus">Plays every phrase in order, pausing between each.</div>
+      <button class="playall-reset-btn" id="playAllResetBtn" aria-label="Reset to first phrase"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
     </div>
     <div class="progress-row">
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -611,7 +713,7 @@ const ICONS = {
   trash: '<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
 };
 
-const DATA = [
+const DATA_FR = [
   {cat:"Daily routine", items:[
     ["Je me suis réveillé tôt aujourd'hui.","I woke up early today."],
     ["Je fais du café.","I'm making coffee."],
@@ -736,42 +838,462 @@ const DATA = [
   ]},
 ];
 
-// Flatten with stable global ids
+const DATA_IT = [
+  {cat:"Daily routine", items:[
+    ["Mi sono svegliato presto oggi.","I woke up early today."],
+    ["Sto facendo il caffè.","I'm making coffee."],
+    ["Devo andare tra cinque minuti.","I need to leave in five minutes."],
+    ["Sono in ritardo.","I'm running late."],
+    ["Ho dormito bene stanotte.","I slept well last night."],
+    ["Sono stanco.","I'm tired."],
+    ["Devo fare la doccia.","I need to take a shower."],
+    ["Controllo il telefono.","Let me check my phone."],
+    ["Ho dimenticato le chiavi.","I forgot my keys."],
+    ["Torno subito.","I'll be right back."],
+  ]},
+  {cat:"Greetings & small talk", items:[
+    ["Come sta?","How are you doing?"],
+    ["Sto bene, grazie.","I'm doing well, thanks."],
+    ["Cosa sta facendo?","What are you up to?"],
+    ["Niente di che, mi sto rilassando.","Nothing much, just relaxing."],
+    ["È da tanto che non ci vediamo.","Long time no see."],
+    ["Piacere di vederla.","Nice to see you."],
+    ["Si prenda cura di sé.","Take care."],
+    ["A più tardi.","See you later."],
+    ["Buona giornata.","Have a good day."],
+    ["A presto.","Talk to you soon."],
+  ]},
+  {cat:"Requests & clarification", items:[
+    ["Può aiutarmi con questo?","Can you help me with this?"],
+    ["Ha bisogno di qualcosa?","Do you need anything?"],
+    ["Mi dica se ha bisogno di aiuto.","Let me know if you need help."],
+    ["Può passarmi quello?","Can you pass me that?"],
+    ["Può ripetere?","Could you repeat that?"],
+    ["Non ho capito.","I didn't catch that."],
+    ["Può parlare un po' più lentamente?","Can you speak a little slower?"],
+    ["Cosa ha detto?","What did you say?"],
+    ["Mi scusi, non ho capito.","Sorry, I didn't understand."],
+    ["Può spiegare di nuovo?","Can you explain that again?"],
+  ]},
+  {cat:"Food & eating", items:[
+    ["Ho fame.","I'm hungry."],
+    ["Ho sete.","I'm thirsty."],
+    ["Cosa vuole mangiare?","What do you want to eat?"],
+    ["Ordiniamo qualcosa da mangiare?","Let's order food."],
+    ["È molto buono.","This tastes great."],
+    ["Sono sazio.","I'm full."],
+    ["Il conto, per favore.","Can I get the check, please?"],
+    ["Vuole bere qualcosa?","Do you want something to drink?"],
+    ["Devo fare la spesa.","I need to go grocery shopping."],
+    ["Cosa c'è per cena?","What's for dinner?"],
+  ]},
+  {cat:"Work & errands", items:[
+    ["Ho una riunione alle tre.","I have a meeting at three."],
+    ["Devo finire questo entro domani.","I need to finish this by tomorrow."],
+    ["Possiamo riprogrammare?","Can we reschedule?"],
+    ["Le invierò un'email.","I'll send you an email."],
+    ["Ne parliamo più tardi.","Let's talk about it later."],
+    ["Oggi lavoro da casa.","I'm working from home today."],
+    ["Ho delle commissioni da fare.","I need to run some errands."],
+    ["Devo fare una telefonata.","I have to make a phone call."],
+    ["Controllo il mio calendario.","Let me check my calendar."],
+    ["La ricontatto.","I'll get back to you."],
+  ]},
+  {cat:"Feelings & opinions", items:[
+    ["Penso che sia una buona idea.","I think that's a good idea."],
+    ["Non ne sono sicuro.","I'm not sure about that."],
+    ["Sono d'accordo con lei.","I agree with you."],
+    ["Non sono d'accordo.","I disagree."],
+    ["Ha senso.","That makes sense."],
+    ["Sono contento di questo.","I'm happy about that."],
+    ["Sono un po' stressato.","I'm a little stressed."],
+    ["Non si preoccupi.","Don't worry about it."],
+    ["Non è un problema.","It's not a big deal."],
+    ["Non vedo l'ora.","I'm excited about this."],
+  ]},
+  {cat:"Time & plans", items:[
+    ["Che ore sono?","What time is it?"],
+    ["Quali sono i suoi piani per oggi?","What are your plans for today?"],
+    ["Ha progetti per questo fine settimana?","Do you have any plans this weekend?"],
+    ["Ci vediamo uno di questi giorni?","Let's meet up sometime."],
+    ["Sono libero domani.","I'm free tomorrow."],
+    ["Sono occupato adesso.","I'm busy right now."],
+    ["Possiamo farlo un altro giorno?","Can we do this another day?"],
+    ["Arrivo tra dieci minuti.","I'll be there in ten minutes."],
+    ["Ho bisogno di più tempo.","I need more time."],
+    ["Iniziamo adesso.","Let's start now."],
+  ]},
+  {cat:"Home & family", items:[
+    ["Dove si trova?","Where are you?"],
+    ["Sto tornando a casa.","I'm on my way home."],
+    ["Può andare a prendere i bambini?","Can you pick up the kids?"],
+    ["Ha chiuso la porta a chiave?","Did you lock the door?"],
+    ["Spenga le luci.","Turn off the lights."],
+    ["Pulirò più tardi.","I'll clean up later."],
+    ["Può aiutarmi a portare questo?","Can you help me carry this?"],
+    ["Si sta facendo tardi.","It's getting late."],
+    ["Andiamo a dormire.","Let's go to bed."],
+    ["Buongiorno.","Good morning."],
+  ]},
+  {cat:"Weather & small talk", items:[
+    ["Fa davvero caldo oggi.","It's really hot today."],
+    ["Fa freddo fuori.","It's cold outside."],
+    ["Sembra che stia per piovere.","Looks like it's going to rain."],
+    ["Che bella giornata.","What a nice day."],
+    ["Adoro questo tempo.","I love this weather."],
+  ]},
+  {cat:"Understanding & questions", items:[
+    ["Cosa intende dire?","What do you mean?"],
+    ["Perché lo pensa?","Why do you think so?"],
+    ["Come funziona questo?","How does this work?"],
+    ["Cosa sta succedendo?","What's going on?"],
+    ["Va tutto bene?","Is everything okay?"],
+  ]},
+  {cat:"Gratitude & apologies", items:[
+    ["Grazie mille.","Thank you so much."],
+    ["Grazie per il suo aiuto.","Thanks for your help."],
+    ["Lo apprezzo davvero.","I really appreciate it."],
+    ["Mi dispiace per questo.","I'm sorry about that."],
+    ["Le mie scuse.","My apologies."],
+    ["Nessun problema.","No problem at all."],
+    ["Prego.","You're welcome."],
+    ["Mi scusi per il disturbo.","Sorry to bother you."],
+    ["È molto gentile da parte sua.","That's very kind of you."],
+    ["Gliene devo una.","I owe you one."],
+  ]},
+];
+
+const DATA_HR = [
+  {cat:"Daily routine", items:[
+    ["Danas sam se rano probudio.","I woke up early today."],
+    ["Pravim kavu.","I'm making coffee."],
+    ["Moram krenuti za pet minuta.","I need to leave in five minutes."],
+    ["Kasnim.","I'm running late."],
+    ["Dobro sam spavao sinoć.","I slept well last night."],
+    ["Umoran sam.","I'm tired."],
+    ["Moram se istuširati.","I need to take a shower."],
+    ["Provjerit ću telefon.","Let me check my phone."],
+    ["Zaboravio sam ključeve.","I forgot my keys."],
+    ["Odmah se vraćam.","I'll be right back."],
+  ]},
+  {cat:"Greetings & small talk", items:[
+    ["Kako ste?","How are you doing?"],
+    ["Dobro sam, hvala.","I'm doing well, thanks."],
+    ["Što radite?","What are you up to?"],
+    ["Ništa posebno, opuštam se.","Nothing much, just relaxing."],
+    ["Dugo se nismo vidjeli.","Long time no see."],
+    ["Drago mi je što Vas vidim.","Nice to see you."],
+    ["Čuvajte se.","Take care."],
+    ["Vidimo se kasnije.","See you later."],
+    ["Ugodan dan.","Have a good day."],
+    ["Čujemo se uskoro.","Talk to you soon."],
+  ]},
+  {cat:"Requests & clarification", items:[
+    ["Možete li mi pomoći s ovim?","Can you help me with this?"],
+    ["Trebate li nešto?","Do you need anything?"],
+    ["Recite mi ako Vam treba pomoć.","Let me know if you need help."],
+    ["Možete li mi to dodati?","Can you pass me that?"],
+    ["Možete li ponoviti?","Could you repeat that?"],
+    ["Nisam razumio.","I didn't catch that."],
+    ["Možete li govoriti malo sporije?","Can you speak a little slower?"],
+    ["Što ste rekli?","What did you say?"],
+    ["Oprostite, nisam razumio.","Sorry, I didn't understand."],
+    ["Možete li ponovno objasniti?","Can you explain that again?"],
+  ]},
+  {cat:"Food & eating", items:[
+    ["Gladan sam.","I'm hungry."],
+    ["Žedan sam.","I'm thirsty."],
+    ["Što želite jesti?","What do you want to eat?"],
+    ["Naručimo nešto za jelo?","Let's order food."],
+    ["Ovo je jako ukusno.","This tastes great."],
+    ["Sit sam.","I'm full."],
+    ["Račun, molim Vas.","Can I get the check, please?"],
+    ["Želite li nešto popiti?","Do you want something to drink?"],
+    ["Moram ići u kupovinu.","I need to go grocery shopping."],
+    ["Što imamo za večeru?","What's for dinner?"],
+  ]},
+  {cat:"Work & errands", items:[
+    ["Imam sastanak u tri sata.","I have a meeting at three."],
+    ["Moram ovo završiti do sutra.","I need to finish this by tomorrow."],
+    ["Možemo li to pomaknuti?","Can we reschedule?"],
+    ["Poslat ću Vam e-mail.","I'll send you an email."],
+    ["Razgovarajmo o tome kasnije.","Let's talk about it later."],
+    ["Danas radim od kuće.","I'm working from home today."],
+    ["Moram obaviti neke poslove.","I need to run some errands."],
+    ["Moram obaviti telefonski poziv.","I have to make a phone call."],
+    ["Provjerit ću svoj kalendar.","Let me check my calendar."],
+    ["Javit ću Vam se.","I'll get back to you."],
+  ]},
+  {cat:"Feelings & opinions", items:[
+    ["Mislim da je to dobra ideja.","I think that's a good idea."],
+    ["Nisam siguran u to.","I'm not sure about that."],
+    ["Slažem se s Vama.","I agree with you."],
+    ["Ne slažem se.","I disagree."],
+    ["To ima smisla.","That makes sense."],
+    ["Zbog toga sam sretan.","I'm happy about that."],
+    ["Malo sam pod stresom.","I'm a little stressed."],
+    ["Ne brinite se.","Don't worry about it."],
+    ["Nije to ništa strašno.","It's not a big deal."],
+    ["Jedva čekam.","I'm excited about this."],
+  ]},
+  {cat:"Time & plans", items:[
+    ["Koliko je sati?","What time is it?"],
+    ["Kakvi su Vaši planovi za danas?","What are your plans for today?"],
+    ["Imate li planove za ovaj vikend?","Do you have any plans this weekend?"],
+    ["Vidimo se jednog dana?","Let's meet up sometime."],
+    ["Sutra sam slobodan.","I'm free tomorrow."],
+    ["Sada sam zauzet.","I'm busy right now."],
+    ["Možemo li to napraviti neki drugi dan?","Can we do this another day?"],
+    ["Stižem za deset minuta.","I'll be there in ten minutes."],
+    ["Treba mi više vremena.","I need more time."],
+    ["Počnimo sada.","Let's start now."],
+  ]},
+  {cat:"Home & family", items:[
+    ["Gdje ste?","Where are you?"],
+    ["Idem kući.","I'm on my way home."],
+    ["Možete li pokupiti djecu?","Can you pick up the kids?"],
+    ["Jeste li zaključali vrata?","Did you lock the door?"],
+    ["Ugasite svjetla.","Turn off the lights."],
+    ["Počistit ću kasnije.","I'll clean up later."],
+    ["Možete li mi pomoći ovo nositi?","Can you help me carry this?"],
+    ["Kasno je.","It's getting late."],
+    ["Idemo spavati.","Let's go to bed."],
+    ["Dobro jutro.","Good morning."],
+  ]},
+  {cat:"Weather & small talk", items:[
+    ["Danas je jako vruće.","It's really hot today."],
+    ["Vani je hladno.","It's cold outside."],
+    ["Izgleda da će padati kiša.","Looks like it's going to rain."],
+    ["Kako lijep dan.","What a nice day."],
+    ["Volim ovo vrijeme.","I love this weather."],
+  ]},
+  {cat:"Understanding & questions", items:[
+    ["Što mislite pod tim?","What do you mean?"],
+    ["Zašto tako mislite?","Why do you think so?"],
+    ["Kako ovo radi?","How does this work?"],
+    ["Što se događa?","What's going on?"],
+    ["Je li sve u redu?","Is everything okay?"],
+  ]},
+  {cat:"Gratitude & apologies", items:[
+    ["Puno Vam hvala.","Thank you so much."],
+    ["Hvala na pomoći.","Thanks for your help."],
+    ["Zaista to cijenim.","I really appreciate it."],
+    ["Žao mi je zbog toga.","I'm sorry about that."],
+    ["Moje isprike.","My apologies."],
+    ["Nema problema.","No problem at all."],
+    ["Nema na čemu.","You're welcome."],
+    ["Oprostite što smetam.","Sorry to bother you."],
+    ["To je jako lijepo od Vas.","That's very kind of you."],
+    ["Dužan sam Vam uslugu.","I owe you one."],
+  ]},
+];
+
+const DATA_ES = [
+  {cat:"Daily routine", items:[
+    ["Hoy me desperté temprano.","I woke up early today."],
+    ["Estoy haciendo café.","I'm making coffee."],
+    ["Tengo que salir en cinco minutos.","I need to leave in five minutes."],
+    ["Voy tarde.","I'm running late."],
+    ["Dormí bien anoche.","I slept well last night."],
+    ["Estoy cansado.","I'm tired."],
+    ["Tengo que ducharme.","I need to take a shower."],
+    ["Voy a revisar mi teléfono.","Let me check my phone."],
+    ["Olvidé mis llaves.","I forgot my keys."],
+    ["Vuelvo enseguida.","I'll be right back."],
+  ]},
+  {cat:"Greetings & small talk", items:[
+    ["¿Cómo está?","How are you doing?"],
+    ["Estoy bien, gracias.","I'm doing well, thanks."],
+    ["¿Qué está haciendo?","What are you up to?"],
+    ["Nada en especial, descansando.","Nothing much, just relaxing."],
+    ["Cuánto tiempo sin verlo.","Long time no see."],
+    ["Encantado de verlo.","Nice to see you."],
+    ["Cuídese.","Take care."],
+    ["Hasta luego.","See you later."],
+    ["Que tenga un buen día.","Have a good day."],
+    ["Hablamos pronto.","Talk to you soon."],
+  ]},
+  {cat:"Requests & clarification", items:[
+    ["¿Puede ayudarme con esto?","Can you help me with this?"],
+    ["¿Necesita algo?","Do you need anything?"],
+    ["Dígame si necesita ayuda.","Let me know if you need help."],
+    ["¿Puede pasarme eso?","Can you pass me that?"],
+    ["¿Podría repetirlo?","Could you repeat that?"],
+    ["No entendí eso.","I didn't catch that."],
+    ["¿Puede hablar un poco más despacio?","Can you speak a little slower?"],
+    ["¿Qué dijo?","What did you say?"],
+    ["Disculpe, no entendí.","Sorry, I didn't understand."],
+    ["¿Puede explicarlo de nuevo?","Can you explain that again?"],
+  ]},
+  {cat:"Food & eating", items:[
+    ["Tengo hambre.","I'm hungry."],
+    ["Tengo sed.","I'm thirsty."],
+    ["¿Qué quiere comer?","What do you want to eat?"],
+    ["¿Pedimos algo de comer?","Let's order food."],
+    ["Esto sabe muy bien.","This tastes great."],
+    ["Estoy lleno.","I'm full."],
+    ["La cuenta, por favor.","Can I get the check, please?"],
+    ["¿Quiere beber algo?","Do you want something to drink?"],
+    ["Tengo que ir a comprar comida.","I need to go grocery shopping."],
+    ["¿Qué hay para cenar?","What's for dinner?"],
+  ]},
+  {cat:"Work & errands", items:[
+    ["Tengo una reunión a las tres.","I have a meeting at three."],
+    ["Tengo que terminar esto antes de mañana.","I need to finish this by tomorrow."],
+    ["¿Podemos reprogramarlo?","Can we reschedule?"],
+    ["Le enviaré un correo electrónico.","I'll send you an email."],
+    ["Hablamos de eso más tarde.","Let's talk about it later."],
+    ["Hoy trabajo desde casa.","I'm working from home today."],
+    ["Tengo que hacer unos mandados.","I need to run some errands."],
+    ["Tengo que hacer una llamada.","I have to make a phone call."],
+    ["Voy a revisar mi calendario.","Let me check my calendar."],
+    ["Le responderé pronto.","I'll get back to you."],
+  ]},
+  {cat:"Feelings & opinions", items:[
+    ["Creo que es una buena idea.","I think that's a good idea."],
+    ["No estoy seguro de eso.","I'm not sure about that."],
+    ["Estoy de acuerdo con usted.","I agree with you."],
+    ["No estoy de acuerdo.","I disagree."],
+    ["Tiene sentido.","That makes sense."],
+    ["Me alegra eso.","I'm happy about that."],
+    ["Estoy un poco estresado.","I'm a little stressed."],
+    ["No se preocupe.","Don't worry about it."],
+    ["No es gran cosa.","It's not a big deal."],
+    ["Estoy emocionado por esto.","I'm excited about this."],
+  ]},
+  {cat:"Time & plans", items:[
+    ["¿Qué hora es?","What time is it?"],
+    ["¿Cuáles son sus planes para hoy?","What are your plans for today?"],
+    ["¿Tiene planes para este fin de semana?","Do you have any plans this weekend?"],
+    ["¿Nos vemos algún día de estos?","Let's meet up sometime."],
+    ["Estoy libre mañana.","I'm free tomorrow."],
+    ["Estoy ocupado ahora.","I'm busy right now."],
+    ["¿Podemos hacerlo otro día?","Can we do this another day?"],
+    ["Llego en diez minutos.","I'll be there in ten minutes."],
+    ["Necesito más tiempo.","I need more time."],
+    ["Empecemos ahora.","Let's start now."],
+  ]},
+  {cat:"Home & family", items:[
+    ["¿Dónde está?","Where are you?"],
+    ["Voy camino a casa.","I'm on my way home."],
+    ["¿Puede recoger a los niños?","Can you pick up the kids?"],
+    ["¿Cerró la puerta con llave?","Did you lock the door?"],
+    ["Apague las luces.","Turn off the lights."],
+    ["Limpiaré más tarde.","I'll clean up later."],
+    ["¿Puede ayudarme a cargar esto?","Can you help me carry this?"],
+    ["Se está haciendo tarde.","It's getting late."],
+    ["Vamos a dormir.","Let's go to bed."],
+    ["Buenos días.","Good morning."],
+  ]},
+  {cat:"Weather & small talk", items:[
+    ["Hoy hace mucho calor.","It's really hot today."],
+    ["Hace frío afuera.","It's cold outside."],
+    ["Parece que va a llover.","Looks like it's going to rain."],
+    ["Qué día tan bonito.","What a nice day."],
+    ["Me encanta este clima.","I love this weather."],
+  ]},
+  {cat:"Understanding & questions", items:[
+    ["¿Qué quiere decir?","What do you mean?"],
+    ["¿Por qué piensa eso?","Why do you think so?"],
+    ["¿Cómo funciona esto?","How does this work?"],
+    ["¿Qué está pasando?","What's going on?"],
+    ["¿Está todo bien?","Is everything okay?"],
+  ]},
+  {cat:"Gratitude & apologies", items:[
+    ["Muchas gracias.","Thank you so much."],
+    ["Gracias por su ayuda.","Thanks for your help."],
+    ["Se lo agradezco mucho.","I really appreciate it."],
+    ["Lo siento por eso.","I'm sorry about that."],
+    ["Mis disculpas.","My apologies."],
+    ["No hay ningún problema.","No problem at all."],
+    ["De nada.","You're welcome."],
+    ["Disculpe la molestia.","Sorry to bother you."],
+    ["Es muy amable de su parte.","That's very kind of you."],
+    ["Se lo debo.","I owe you one."],
+  ]},
+];
+
+const LANGUAGES = [
+  { code: 'fr', name: 'French',    flag: '🇫🇷' },
+  { code: 'it', name: 'Italian',   flag: '🇮🇹' },
+  { code: 'hr', name: 'Croatian',  flag: '🇭🇷' },
+  { code: 'es', name: 'Spanish',   flag: '🇪🇸' },
+];
+
+const DATA_BY_LANG = {
+  fr: DATA_FR,
+  it: DATA_IT,
+  hr: DATA_HR,
+  es: DATA_ES,
+};
+
+let currentLang = 'fr';
+
+function getLangInfo(code) {
+  return LANGUAGES.find(l => l.code === code) || LANGUAGES[0];
+}
+
+// Flatten the current language's built-in phrases with stable ids.
 let ALL = [];
-DATA.forEach(section => {
-  section.items.forEach(([fr, en]) => {
-    ALL.push({ id: ALL.length, fr, en, cat: section.cat });
+function rebuildAllFromCurrentLanguage() {
+  ALL = [];
+  const data = DATA_BY_LANG[currentLang] || [];
+  data.forEach(section => {
+    section.items.forEach(([target, en]) => {
+      ALL.push({ id: ALL.length, fr: target, en, cat: section.cat });
+    });
   });
-});
+}
+rebuildAllFromCurrentLanguage();
 
 let learnedSet = new Set();
 let currentUtterancePair = null; // {btn} while speaking
 let customPhrases = []; // {id, fr, en}
 let nextCustomId = 1000;
 
-function saveLearned() {
-  storageSet('learned-ids', JSON.stringify(Array.from(learnedSet)));
+// Session-level cache, keyed by language code. Once a language's data has
+// been loaded from storage this session, switching back to it reads from
+// here instead of asking storage again — this sidesteps any read-after-write
+// timing gap a remote storage backend might have, and is also just faster.
+let customPhrasesCache = {};
+let learnedCache = {};
+
+async function saveLearned() {
+  learnedCache[currentLang] = new Set(learnedSet);
+  await storageSet('learned-ids-' + currentLang, JSON.stringify(Array.from(learnedSet)));
 }
 
 async function loadLearned() {
+  if (learnedCache[currentLang]) {
+    learnedSet = new Set(learnedCache[currentLang]);
+    updateProgress();
+    return;
+  }
   try {
-    const raw = await storageGet('learned-ids');
-    if (raw) {
-      learnedSet = new Set(JSON.parse(raw));
-    }
+    const raw = await storageGet('learned-ids-' + currentLang);
+    learnedSet = raw ? new Set(JSON.parse(raw)) : new Set();
   } catch (e) {
     learnedSet = new Set();
   }
+  learnedCache[currentLang] = new Set(learnedSet);
   updateProgress();
 }
 
-function saveCustom() {
-  storageSet('custom-phrases', JSON.stringify(customPhrases));
+async function saveCustom() {
+  customPhrasesCache[currentLang] = customPhrases.slice();
+  await storageSet('custom-phrases-' + currentLang, JSON.stringify(customPhrases));
 }
 
 async function loadCustom() {
+  if (customPhrasesCache[currentLang]) {
+    customPhrases = customPhrasesCache[currentLang].slice();
+    nextCustomId = customPhrases.length ? Math.max(...customPhrases.map(p => p.id)) + 1 : 1000;
+    return;
+  }
+  customPhrases = [];
+  nextCustomId = 1000;
   try {
-    const raw = await storageGet('custom-phrases');
+    const raw = await storageGet('custom-phrases-' + currentLang);
     if (raw) {
       customPhrases = JSON.parse(raw);
       if (customPhrases.length) {
@@ -781,6 +1303,7 @@ async function loadCustom() {
   } catch (e) {
     customPhrases = [];
   }
+  customPhrasesCache[currentLang] = customPhrases.slice();
 }
 
 function updateProgress() {
@@ -790,16 +1313,24 @@ function updateProgress() {
   document.getElementById('progressLabel').textContent = `${done} / ${total} learned`;
 }
 
-function toggleLearned(id, btn, card) {
+async function toggleLearned(id, btn, card) {
   if (learnedSet.has(id)) {
     learnedSet.delete(id);
     card.classList.remove('learned');
   } else {
     learnedSet.add(id);
     card.classList.add('learned');
+    // If Play All is mid-sequence and excluding learned phrases, drop this
+    // one from whatever's left in the queue — including phrases further
+    // ahead than the current position, not just the very next one.
+    if (settings.onlyUnlearned && playOrder.length) {
+      for (let i = playOrder.length - 1; i > playAllIndex; i--) {
+        if (playOrder[i].id === id) playOrder.splice(i, 1);
+      }
+    }
   }
   updateProgress();
-  saveLearned();
+  await saveLearned();
 }
 
 function toggleReveal(enEl) {
@@ -810,15 +1341,19 @@ let voices = [];
 function loadVoices() {
   try {
     voices = window.speechSynthesis.getVoices() || [];
-    const hasFrench = voices.some(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
-    if (!hasFrench) {
-      const note = document.getElementById('voiceNote');
-      if (note) note.style.display = 'block';
-    }
+    checkVoiceAvailability();
   } catch (e) {
     const note = document.getElementById('voiceNote');
     if (note) note.style.display = 'block';
   }
+}
+
+function checkVoiceAvailability() {
+  const note = document.getElementById('voiceNote');
+  if (!note) return;
+  const hasVoice = voices.some(v => v.lang && v.lang.toLowerCase().startsWith(currentLang));
+  note.style.display = hasVoice ? 'none' : 'block';
+  note.textContent = 'No ' + getLangInfo(currentLang).name + ' voice detected on this device — audio may fall back to a default voice.';
 }
 try {
   if ('speechSynthesis' in window) {
@@ -836,7 +1371,7 @@ function pickVoice(langPrefix) {
 let settings = {
   gapSeconds: 1,
   playEnglish: true,
-  frenchRate: 0.95,
+  targetRate: 0.95,
   shuffle: false,
   onlyUnlearned: true,
   showEnglishDuringPlayback: false
@@ -858,7 +1393,7 @@ async function loadSettings() {
 function applySettingsToUI() {
   document.getElementById('gapSeconds').value = settings.gapSeconds;
   document.getElementById('gapSecondsValue').textContent = settings.gapSeconds + 's';
-  document.getElementById('speedToggle').value = settings.frenchRate;
+  document.getElementById('speedToggle').value = settings.targetRate;
   setSwitch('playEnglishToggle', settings.playEnglish);
   setSwitch('showEnglishToggle', settings.showEnglishDuringPlayback);
   setSwitch('shuffleToggle', settings.shuffle);
@@ -868,7 +1403,8 @@ function applySettingsToUI() {
 
 function idleStatusText() {
   const order = settings.shuffle ? 'in shuffled order' : 'in order';
-  const audio = settings.playEnglish ? 'French then English' : 'French only';
+  const langName = getLangInfo(currentLang).name;
+  const audio = settings.playEnglish ? (langName + ' then English') : (langName + ' only');
   return `Plays every phrase ${order}, ${audio}, pausing between each.`;
 }
 
@@ -942,7 +1478,7 @@ function playPhrase(item, btn) {
   currentUtterancePair = btn;
   startAutoReveal(item);
 
-  speak(item.fr, 'fr', settings.frenchRate, () => {
+  speak(item.fr, currentLang, settings.targetRate, () => {
     if (!settings.playEnglish) {
       setTimeout(() => {
         if (currentUtterancePair !== btn) return;
@@ -988,8 +1524,8 @@ function resetPlayingState() {
   endAutoReveal();
 }
 
-async function translateToFrench(english) {
-  const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(english) + "&langpair=en|fr";
+async function translateText(english, targetCode) {
+  const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(english) + "&langpair=en|" + targetCode;
   const response = await fetch(url);
   if (!response.ok) throw new Error("Translation request failed");
   const data = await response.json();
@@ -1013,7 +1549,7 @@ async function handleAddCustomPhrase() {
   if (frenchTyped) {
     const item = { id: nextCustomId++, fr: frenchTyped, en: english };
     customPhrases.push(item);
-    saveCustom();
+    await saveCustom();
     enInput.value = '';
     frInput.value = '';
     frenchManuallyEdited = false;
@@ -1026,10 +1562,10 @@ async function handleAddCustomPhrase() {
   btn.disabled = true;
   status.textContent = 'Translating…';
   try {
-    const french = await translateToFrench(english);
+    const french = await translateText(english, currentLang);
     const item = { id: nextCustomId++, fr: french, en: english };
     customPhrases.push(item);
-    saveCustom();
+    await saveCustom();
     enInput.value = '';
     frInput.value = '';
     frenchManuallyEdited = false;
@@ -1037,28 +1573,28 @@ async function handleAddCustomPhrase() {
     renderAll();
   } catch (e) {
     status.classList.add('error');
-    status.textContent = "Couldn't translate that — try again, or type the French yourself above.";
+    status.textContent = "Couldn't translate that — try again, or type the " + getLangInfo(currentLang).name + " yourself above.";
   } finally {
     btn.disabled = false;
   }
 }
 
-function removeCustomPhrase(id) {
+async function removeCustomPhrase(id) {
   customPhrases = customPhrases.filter(p => p.id !== id);
   learnedSet.delete(id);
-  saveCustom();
-  saveLearned();
+  await saveCustom();
+  await saveLearned();
   renderAll();
 }
 
 let editingIds = new Set();
 
-function updateCustomPhrase(id, newEn, newFr) {
+async function updateCustomPhrase(id, newEn, newFr) {
   const item = customPhrases.find(p => p.id === id);
   if (item) {
     item.en = newEn;
     item.fr = newFr;
-    saveCustom();
+    await saveCustom();
   }
   editingIds.delete(id);
   renderAll();
@@ -1188,7 +1724,7 @@ function buildEditForm(item) {
   const frInput = document.createElement('input');
   frInput.type = 'text';
   frInput.value = item.fr;
-  frInput.placeholder = 'French translation';
+  frInput.placeholder = getLangInfo(currentLang).name + ' translation';
 
   const actions = document.createElement('div');
   actions.className = 'edit-form-actions';
@@ -1289,7 +1825,7 @@ function renderAll() {
     container.appendChild(catDiv);
   }
 
-  DATA.forEach(section => {
+  (DATA_BY_LANG[currentLang] || []).forEach(section => {
     const catDiv = document.createElement('div');
     catDiv.className = 'category';
     const h2 = document.createElement('h2');
@@ -1319,6 +1855,21 @@ function setPlayAllButton(active) {
     ? ICONS.pause + '<span>Pause</span>'
     : ICONS.play + '<span>Play all</span>';
 }
+
+function updatePlayAllResetVisibility() {
+  const resetBtn = document.getElementById('playAllResetBtn');
+  resetBtn.classList.toggle('visible', playAllIndex > 0);
+}
+
+function resetPlayAll() {
+  stopPlayAll();
+  playAllIndex = 0;
+  playOrder = [];
+  updatePlayAllResetVisibility();
+  refreshIdleStatus();
+}
+
+document.getElementById('playAllResetBtn').addEventListener('click', resetPlayAll);
 
 function stopPlayAll() {
   if (!playAllActive) return;
@@ -1357,11 +1908,13 @@ function playAllStep() {
     setPlayAllButton(false);
     document.getElementById('playAllStatus').textContent = 'Reached the end — press Play all to restart.';
     playAllIndex = 0;
+    updatePlayAllResetVisibility();
     return;
   }
   const item = playOrder[playAllIndex];
   highlightCard(item);
   document.getElementById('playAllStatus').textContent = `Phrase ${playAllIndex + 1} / ${playOrder.length}`;
+  updatePlayAllResetVisibility();
 
   const card = document.getElementById('card-' + item.id);
   const btn = card ? card.querySelector('.play-btn') : null;
@@ -1371,7 +1924,7 @@ function playAllStep() {
   }
   startAutoReveal(item);
 
-  speak(item.fr, 'fr', settings.frenchRate, () => {
+  speak(item.fr, currentLang, settings.targetRate, () => {
     if (!playAllActive) return;
     if (!settings.playEnglish) {
       setTimeout(() => {
@@ -1395,7 +1948,8 @@ function playAllStep() {
 document.getElementById('playAllBtn').addEventListener('click', () => {
   if (playAllActive) {
     stopPlayAll();
-    document.getElementById('playAllStatus').textContent = `Paused at phrase ${playAllIndex} / ${playOrder.length}. Press Play all to resume.`;
+    document.getElementById('playAllStatus').textContent = `Paused at phrase ${playAllIndex + 1} / ${playOrder.length}. Press Play all to resume.`;
+    updatePlayAllResetVisibility();
   } else {
     if (playAllIndex === 0) {
       playOrder = computePlayOrder();
@@ -1423,7 +1977,7 @@ document.getElementById('gapSeconds').addEventListener('input', (e) => {
 });
 
 document.getElementById('speedToggle').addEventListener('change', (e) => {
-  settings.frenchRate = parseFloat(e.target.value);
+  settings.targetRate = parseFloat(e.target.value);
   saveSettings();
 });
 
@@ -1494,7 +2048,7 @@ liveEnInput.addEventListener('input', () => {
     const myRequestId = ++liveTranslateRequestId;
     spinner.classList.add('active');
     try {
-      const translated = await translateToFrench(text);
+      const translated = await translateText(text, currentLang);
       // Ignore this result if the person kept typing since, or typed
       // their own French while we were waiting on the network.
       if (myRequestId !== liveTranslateRequestId) return;
@@ -1507,7 +2061,7 @@ liveEnInput.addEventListener('input', () => {
     } catch (e) {
       if (myRequestId !== liveTranslateRequestId) return;
       status.classList.add('error');
-      status.textContent = "Couldn't translate that — try again, or type the French yourself above.";
+      status.textContent = "Couldn't translate that — try again, or type the " + getLangInfo(currentLang).name + " yourself above.";
     } finally {
       if (myRequestId === liveTranslateRequestId) {
         spinner.classList.remove('active');
@@ -1516,7 +2070,87 @@ liveEnInput.addEventListener('input', () => {
   }, 300);
 });
 
+async function loadCurrentLanguage() {
+  try {
+    const raw = await storageGet('current-language');
+    if (raw && LANGUAGES.some(l => l.code === raw)) {
+      currentLang = raw;
+    }
+  } catch (e) {
+    // keep default
+  }
+}
+
+function saveCurrentLanguage() {
+  storageSet('current-language', currentLang);
+}
+
+function updateLanguageUI() {
+  const info = getLangInfo(currentLang);
+  document.getElementById('langFlag').textContent = info.flag;
+  document.getElementById('langName').textContent = info.name;
+  document.getElementById('pageTitle').textContent = info.name + ' Practice';
+  document.title = info.name + ' Practice';
+  document.getElementById('customInputFr').placeholder = info.name + ' translation';
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+  const speedLabel = document.querySelector('label[for="speedToggle"]');
+  if (speedLabel) speedLabel.textContent = info.name + ' speed';
+  checkVoiceAvailability();
+  refreshIdleStatus();
+}
+
+async function switchLanguage(code) {
+  if (code === currentLang) {
+    document.getElementById('langToolbar').classList.remove('open');
+    return;
+  }
+  const draftEn = document.getElementById('customInputEn').value.trim();
+  const draftFr = document.getElementById('customInputFr').value.trim();
+  if (draftEn || draftFr) {
+    const proceed = confirm('You have an unsaved phrase in the "Add your own phrase" box. Switch languages anyway and discard it?');
+    if (!proceed) return;
+    document.getElementById('customInputEn').value = '';
+    document.getElementById('customInputFr').value = '';
+    frenchManuallyEdited = false;
+  }
+  stopPlayAll();
+  playAllIndex = 0;
+  playOrder = [];
+  updatePlayAllResetVisibility();
+  safeCancelSpeech();
+  resetPlayingState();
+  currentLang = code;
+  rebuildAllFromCurrentLanguage();
+  await loadLearned();
+  await loadCustom();
+  saveCurrentLanguage();
+  updateLanguageUI();
+  renderAll();
+  document.getElementById('langToolbar').classList.remove('open');
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+document.getElementById('langCurrentBtn').addEventListener('click', () => {
+  document.getElementById('langToolbar').classList.toggle('open');
+});
+
+document.querySelectorAll('.lang-option').forEach(btn => {
+  btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
+});
+
+document.addEventListener('click', (e) => {
+  const toolbar = document.getElementById('langToolbar');
+  if (toolbar.classList.contains('open') && !toolbar.contains(e.target)) {
+    toolbar.classList.remove('open');
+  }
+});
+
 (async function init() {
+  await loadCurrentLanguage();
+  rebuildAllFromCurrentLanguage();
+  updateLanguageUI();
   await loadLearned();
   await loadCustom();
   await loadSettings();
